@@ -7,7 +7,11 @@ include("../styles.jl")
 include("../components/header.jl")
 include("../components/navbar.jl")
 
-# open readme
+
+# --------------------------------------------------------------------
+
+
+# open readme to display readme on home page
 io = open("../README.md", "r")
 readme = read(io, String)
 close(io)
@@ -16,10 +20,9 @@ close(io)
 function getHome()
     home = html_div(
         [
-            header,
-            navbar,
             html_div(
                 [
+                    # todo: limit max width of readme text
                     html_div([], className="col-2"),
                     html_div(
                         [dcc_markdown(readme)], 
@@ -30,13 +33,7 @@ function getHome()
                 ],
                 className = "row"
             )
-        ],
-        className = "fill",
-        style = Dict(
-            "backgroundColor" => current_theme["background"],
-            "color" => current_theme["text"],
-            "text-align" => "center"
-        )
+        ]
     )
 
 end

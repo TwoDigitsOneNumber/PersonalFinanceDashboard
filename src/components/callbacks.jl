@@ -2,16 +2,12 @@ using Dash, DashHtmlComponents, DashCoreComponents
 
 
 
-
 # ====================================================================
-# overview callbacks
+# general callbacks (callbacks used on multiple pages)
 
 
-# --------------------------------------------------------------------
-# Data Preparation / User Input Callbacks
 
-
-# callback that subsets the clean_data to the specified date inputs
+# callback that subsets the clean_data to the specified date range
 callback!(
     app,
     Output("date_range_json_data", "children"),
@@ -28,6 +24,15 @@ callback!(
     return JSON.json(date_range_data)
 end
 
+
+
+
+# ====================================================================
+# overview callbacks
+
+
+# --------------------------------------------------------------------
+# Data Preparation / User Input Callbacks
 
 
 # callback that aggregates data based on interval
@@ -58,7 +63,7 @@ end
 
 
 # --------------------------------------------------------------------
-# Plot Callbacks
+# plot callbacks
 
 
 
@@ -202,18 +207,19 @@ callback!(
 
     filled_area_traces = [
         PlotlyJS.scatter(
-            x=unique(agg_data[:, interval]),
-            y=agg_data[agg_data.Category .== category, "Transaction_sum"], 
-            name=category, 
-            stackgroup="one", 
-            groupnorm="percent") for category in unique(skipmissing(agg_data.Category))
+            x = unique(agg_data[:, interval]),
+            y = agg_data[agg_data.Category .== category, "Transaction_sum"], 
+            name = category, 
+            stackgroup = "one", 
+            groupnorm = "percent"
+        ) for category in unique(skipmissing(agg_data.Category))
     ]
 
     return PlotlyJS.Plot(
         # traces
         filled_area_traces,
         PlotlyJS.Layout(
-            title="$inc_exp by Category over Time (in %)",
+            title = "$inc_exp by Category over Time (in %)",
             yaxis_title = "%"
         )
     )
@@ -222,10 +228,38 @@ end
 
 
 
-# callback heatmap_expense
 callback!(
     app,
-    Output("heatmap_expense", "figure"),
+    Output("bar_category_chart", "figure"),
+    Input("aggregated_json_data", "children"),
+    Input("income_expense_overview_picker", "value")
+) do json_data, inc_exp
+    
+    agg_data, interval = unpackJSONData(json_data)
+    agg_data = DataFrames.dropmissing(agg_data[agg_data.Flag .== inc_exp, :], [:Category])
+
+    bar_traces = [
+        PlotlyJS.bar(
+            x = unique(agg_data[:, interval]),
+            y = agg_data[agg_data.Category .== category, "Transaction_sum"],
+            name = category
+        ) for category in unique(skipmissing(agg_data.Category))
+    ]
+
+    return PlotlyJS.Plot(
+        bar_traces,
+        PlotlyJS.Layout(
+            title = "$inc_exp by Category over Time (absolute)",
+            yaxis_title = "CHF"
+        )
+    )
+end
+
+
+# callback weekday_heatmap
+callback!(
+    app,
+    Output("weekday_heatmap", "figure"),
     Input("interval_picker", "value"),
     Input("date_range_json_data", "children"),
     Input("income_expense_overview_picker", "value")
@@ -286,8 +320,8 @@ callback!(
     Input("flag_picker", "value")
 ) do flag_choice
 
+    # find all unique categories for flag (Income or Expense)
     category_options = [(label=i, value=i) for i in unique(clean_data[clean_data.Flag .== flag_choice, :].Category)]
-
     sort!(category_options)
 
     # add "all" option
@@ -311,12 +345,8 @@ callback!(
     category_data = date_range_data[[i ? false : true for i in ismissing.(date_range_data[!, flag_choice])], ["Category", "Date", "Transaction", "Name"]]
 
     if category_choice == "All"
-        println("all")
-        println(category_data)
         return JSON.json(category_data)
     else
-        println("$category_choice")
-        println(category_data[category_data.Category .== category_choice, :])
         return JSON.json(category_data[category_data.Category .== category_choice, :])
     end
 end
@@ -338,7 +368,7 @@ callback!(
 
     category_data = DataFrames.DataFrame(JSON.parse(json_data, null=missing))
     
-    return PlotlyJS.plot(
+    return PlotlyJS.Plot(
         [
             PlotlyJS.histogram(
                 x = category_data.Transaction
@@ -364,17 +394,69 @@ end
 
 
 
-# # histogram
-# callback!(
-#     app,
-#     Output("histogram", "figure"),
-#     Input("category_data")
-# )
+# transactions over time scatter plot
+callback!(
+    app,
+    Output("transaction_time_plot", "figure"),
+    Input("json_category_data", "children")
+) do json_data
+    
+    category_data = DataFrames.DataFrame(JSON.parse(json_data, null=missing))
+    category_data = convertColumnTypes(category_data, "Date")
+
+    replace!(category_data.Name, missing=>"")
+    
+    transaction_info = ["$name ($cat)" for (name, cat) in zip(category_data.Name, category_data.Category)]
+
+    return PlotlyJS.Plot(
+        [
+            PlotlyJS.scatter(
+                x = category_data.Date,
+                y = category_data.Transaction,
+                mode = "markers",
+                text = transaction_info
+            )
+        ],
+        PlotlyJS.Layout(
+            title = "Transactions over Time",
+            hovermode = "closest"
+        )
+    )
+end
 
 
 
+callback!(
+    app,
+    Output("top_ten_transactions", "children"),
+    Input("json_category_data", "children")
+) do json_data
+    
+    category_data = DataFrames.DataFrame(JSON.parse(json_data, null=missing))
+    category_data = convertColumnTypes(category_data, "Date")
 
+    replace!(category_data.Name, missing=>"")
+    DataFrames.sort!(category_data, :Transaction, rev=true)
 
+    cols = ["Transaction", "Date", "Category", "Name"]
 
+    top_ten = html_div([
+        html_h5("Top 10 Transactions", style=Dict("text-align"=>"center")),
+        html_table(
+            [
+                html_thead(html_tr([html_th(col) for col in cols])),
+                html_tbody(
+                    [
+                        html_tr(
+                            [
+                                html_td(category_data[row, col]) for col in cols
+                            ]
+                        ) for row in 1:min(DataFrames.nrow(category_data), 10)
+                    ]
+                )
+            ]
+        )
+    ])
 
-
+    return top_ten
+end

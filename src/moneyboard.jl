@@ -29,6 +29,7 @@ transactions = transactions[1:end-1, :]
 transactions.Date = Dates.Date.(transactions.Date, "dd.mm.yy") + Dates.Year(2000)
 transactions.Time = Dates.Time.(transactions.Time, "HH:MM")
 
+# todo: automate: remove all non digit characters that occur in certain collumns
 # find all unique characters (especially non-ASCII characters)
 findUniqueChars(transactions.Category)
 findUniqueChars(transactions.Name)

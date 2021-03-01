@@ -2,8 +2,6 @@
 
 using Dash, DashHtmlComponents, DashCoreComponents
 import PlotlyJS
-import DataFrames
-import CSV
 import JSON
 import Dates
 
@@ -13,15 +11,6 @@ include("../app.jl")
 include("../functions.jl")
 include("../styles.jl")
 PlotlyJS.use_style!(current_theme["plot_style"])
-
-
-
-# --------------------------------------------------------------------
-# load clean data
-
-clean_data = DataFrames.DataFrame(CSV.File("../data/clean_data.csv"))
-# make Year array categorical
-clean_data[!, "Year"] = DataFrames.CategoricalArray(clean_data[!, "Year"])
 
 
 
@@ -148,6 +137,15 @@ function getOverview()
                 style = Dict("backgroundColor"=>current_theme["accent"])
             ),
 
+
+            html_div(
+                [
+                    html_div([dcc_graph(id="bar_category_chart")], className="col-12")
+                ],
+                className="row"
+            ),
+
+
             html_div(
                 [
                     html_div([dcc_graph(id="pie_chart")], className="col-4"),
@@ -156,9 +154,10 @@ function getOverview()
                 className="row"
             ),
 
+
             html_div(
                 [
-                    html_div([dcc_graph(id="heatmap_expense")], className="col-12")
+                    html_div([dcc_graph(id="weekday_heatmap")], className="col-12")
                 ],
                 className="row"
             )

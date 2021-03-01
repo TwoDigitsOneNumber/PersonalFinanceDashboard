@@ -7,4 +7,9 @@
   width: 100%;
 }
 
+th, td {
+    border-bottom: 1px solid #CDCDCD;
+    padding: 10px;
+}
 
+tr:hover {background-color: #616161;}

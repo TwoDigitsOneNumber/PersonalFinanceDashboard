@@ -2,8 +2,6 @@
 
 using Dash, DashHtmlComponents, DashCoreComponents
 import PlotlyJS
-import DataFrames
-import CSV
 import JSON
 import Dates
 
@@ -14,20 +12,6 @@ include("../functions.jl")
 include("../styles.jl")
 PlotlyJS.use_style!(current_theme["plot_style"])
 
-
-
-
-
-
-
-
-
-# --------------------------------------------------------------------
-# load clean data
-
-clean_data = DataFrames.DataFrame(CSV.File("../data/clean_data.csv"))
-# make Year array categorical
-clean_data[!, "Year"] = DataFrames.CategoricalArray(clean_data[!, "Year"])
 
 
 
@@ -95,6 +79,7 @@ function getTransactions()
                 )
             ),
 
+
             # hidden divs, to store processed data in browser of user
             html_div(
                 id="date_range_json_data",
@@ -110,13 +95,28 @@ function getTransactions()
 
             html_div(
                 [
-                    # histogram
                     html_div([dcc_graph(id="histogram")], className="col-4"),
-                    # transaction_time_plot
-                    html_div([dcc_graph(id="transaction_time")], className="col-8")
+                    html_div([dcc_graph(id="transaction_time_plot")], className="col-8")
+                ],
+                className = "row"
+            ),
+
+
+            # tables
+            html_div(
+                [
+                    html_div([], className="col-1"),
+                    html_div(
+                        id = "top_ten_transactions",
+                    )
                 ],
                 className = "row"
             )
+
+
+            # todo: add tables
+            # table1: summary stats on distribution
+            # table2: largest transactions (top 10?)
         ]
     )
 

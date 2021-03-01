@@ -1,7 +1,6 @@
 using Dash, DashHtmlComponents, DashCoreComponents
-
-
-
+import DataFrames
+import CSV
 
 include("app.jl")
 include("components/callbacks.jl")
@@ -15,14 +14,27 @@ include("components/navbar.jl")
 include("components/callbacks.jl")
 
 
+# load clean_data or demo data if clean_data is not found
+data_path = "../data/"
+if isfile(data_path*"clean_data.csv") 
+    data_file = "clean_data.csv"
+else
+    data_file = "demo_fakedata.csv"
+end
+clean_data = DataFrames.DataFrame(CSV.File(data_path*data_file))
+# make Year array categorical
+clean_data[!, "Year"] = DataFrames.CategoricalArray(clean_data[!, "Year"])
+
+
+# --------------------------------------------------------------------
+# setup basic layout that contains layouts of individual pages
+
 app.layout = html_div(
     [
         header,
         navbar,
         dcc_location(id="url", refresh=false, pathname="/home"),
         html_div(id="page_content")
-
-        
     ],
     className = "container-fluid",
     style = Dict(
@@ -31,8 +43,6 @@ app.layout = html_div(
     )
 )
     
-
-
 
 
 # callback that changes layout based on url
@@ -48,11 +58,9 @@ callback!(
     elseif pathname == "/transactions"
         return getTransactions()
     else
-        return _404
+        return get404()  # catches invalid links; manual url changes revert to /home
     end
 end
-
-
 
 
 

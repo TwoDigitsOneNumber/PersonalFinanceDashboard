@@ -60,11 +60,18 @@ function cumsumIgnoreMissing(array::AbstractArray, type_)
     return missing_cumsum
 end
 
-# make sure a folder data is created in root
 
 function convertColumnTypes(df::DataFrames.DataFrame, interval::AbstractString)
 
-    string_cols = ["Category", "Flag"]
+    # only select columns that are in the dataframe
+    string_cols = []
+    for col in ["Category", "Flag"]
+        if col in DataFrames.names(df)
+            append!(string_cols, [col])
+        end
+    end
+        
+
     if (interval == "Hour") | (interval == "Year")
         df[!, interval] = [string(i) for i in df[!, interval]]
     elseif (interval == "Date")
@@ -82,6 +89,7 @@ function convertColumnTypes(df::DataFrames.DataFrame, interval::AbstractString)
         df[!,col] = convert(Array{Union{Missing, String}, 1}, df[!,col])
     end
 
+
     if "Transaction" in names(df)
         df.Transaction = convert(Array{Float64, 1}, df.Transaction)
     elseif "Transaction_sum" in names(df)
@@ -90,7 +98,6 @@ function convertColumnTypes(df::DataFrames.DataFrame, interval::AbstractString)
 
     return df
 end
-
 
 
 function unpackJSONData(json_data::AbstractString)
@@ -103,11 +110,4 @@ function unpackJSONData(json_data::AbstractString)
 
     return (agg_data, interval)
 end
-
-
-# create account object
-# ability to add transactions
-# ability to add cash
-# ability to store currency
-
 

@@ -1,10 +1,18 @@
 # PersonalFinanceDashboard
 
-This is some `text`.
 
-A bullet list:
-* bullet a
-* bullet b
+todo: write instructions.
+
+
+* place `Moneyboard.csv` file in /data/ folder and run `src/moneyboard.jl`
+* else a demo file gets used
+* run /src/index.jl file
+
+
+todo: how to interact with plots
+* click legend
+* zoom in
+
 
 The filters and selectors always affect all plots that are placed below the filter.
 
