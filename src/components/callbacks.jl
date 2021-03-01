@@ -1,4 +1,5 @@
 using Dash, DashHtmlComponents, DashCoreComponents
+using Statistics
 
 
 
@@ -370,24 +371,10 @@ callback!(
     
     return PlotlyJS.Plot(
         [
-            PlotlyJS.histogram(
-                x = category_data.Transaction
-            )
+            PlotlyJS.histogram(x = category_data.Transaction)
         ],
         PlotlyJS.Layout(
             title = "Histogram"
-        )
-    )
-
-    return PlotlyJS.plot(
-        [
-            PlotlyJS.scatter(
-                x = [1,2,3],
-                y = [5,2,6]
-            )
-        ],
-        PlotlyJS.Layout(
-            title = "test"
         )
     )
 end
@@ -426,6 +413,57 @@ end
 
 
 
+# distribution statistics
+callback!(
+    app,
+    Output("distribution_statistics", "children"),
+    Input("json_category_data", "children")
+) do json_data
+    
+    category_data = DataFrames.DataFrame(JSON.parse(json_data, null=missing))
+    category_data = convertColumnTypes(category_data, "Date")
+
+    return html_div(
+        [
+            html_h5("Distribution Statistics", style=Dict("text-align"=>"center")),
+            html_table(
+                [
+                    html_tbody([
+                        html_tr([
+                            html_td(["Max"]),
+                            html_td([maximum(category_data.Transaction)]),
+                        ]),
+                        html_tr([
+                            html_td(["Mean"]),
+                            html_td([round(mean(category_data.Transaction), digits=2)]),
+                        ]),
+                        html_tr([
+                            html_td(["Median"]),
+                            html_td([median(category_data.Transaction)]),
+                        ]),
+                        html_tr([
+                            html_td(["Min"]),
+                            html_td([minimum(category_data.Transaction)]),
+                        ]),
+                        html_tr([
+                            html_td(["Standard Deviation"]),
+                            html_td([round(std(category_data.Transaction), digits=2)])
+                        ]),
+                        html_tr([
+                            html_td(["Number of Transactions"]),
+                            html_td([length(category_data.Transaction)])
+                        ])
+                    ])
+                ],
+                className="center"
+            )
+        ]
+    )
+end
+
+
+
+# top ten transaction table
 callback!(
     app,
     Output("top_ten_transactions", "children"),
@@ -438,25 +476,26 @@ callback!(
     replace!(category_data.Name, missing=>"")
     DataFrames.sort!(category_data, :Transaction, rev=true)
 
-    cols = ["Transaction", "Date", "Category", "Name"]
+    # add position to dataframe to be displayed
+    pos = 1:min(DataFrames.nrow(category_data), 10)
+    sub_df = category_data[pos, :]
+    sub_df[:, "Position"] = pos
+    cols = ["Position", "Transaction", "Date", "Category", "Name"]
 
-    top_ten = html_div([
+    return html_div([
         html_h5("Top 10 Transactions", style=Dict("text-align"=>"center")),
         html_table(
             [
                 html_thead(html_tr([html_th(col) for col in cols])),
-                html_tbody(
-                    [
-                        html_tr(
-                            [
-                                html_td(category_data[row, col]) for col in cols
-                            ]
-                        ) for row in 1:min(DataFrames.nrow(category_data), 10)
-                    ]
-                )
-            ]
+                html_tbody([
+                    html_tr([
+                        html_td(sub_df[row, col]) for col in cols
+                    ]) for row in pos
+                ])
+            ],
+            className="center"
         )
     ])
-
-    return top_ten
 end
+
+

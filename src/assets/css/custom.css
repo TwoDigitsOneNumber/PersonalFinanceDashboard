@@ -13,3 +13,8 @@ th, td {
 }
 
 tr:hover {background-color: #616161;}
+
+.center {
+    margin-left: auto;
+    margin-right: auto;
+}

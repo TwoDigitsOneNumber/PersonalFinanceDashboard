@@ -91,7 +91,7 @@ function getTransactions()
             ),
 
 
-            # graphs
+            # graphs and tables
 
             html_div(
                 [
@@ -107,8 +107,14 @@ function getTransactions()
                 [
                     html_div([], className="col-1"),
                     html_div(
+                        id = "distribution_statistics",
+                        className = "col-5"
+                    ),
+                    html_div(
                         id = "top_ten_transactions",
-                    )
+                        className = "col-5"
+                    ),
+                    html_div([], className="col-1")
                 ],
                 className = "row"
             )
