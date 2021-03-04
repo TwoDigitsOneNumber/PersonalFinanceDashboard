@@ -270,16 +270,34 @@ callback!(
     cols = ["Category", "Transaction_sum_mean"]
     rows = 1:DataFrames.nrow(means)
 
+    if (interval == "Weekday")
+        interval = "Day"
+    elseif (interval == "CalendarMonth")
+        interval = "Month"
+    elseif (interval == "CalendarWeek")
+        interval = "Week"
+    end
+
     return html_div([
-        html_h5("Average $inc_exp per Category", style=Dict("text-align"=>"center")),
+        html_h5("Average $inc_exp per $interval Category", style=Dict("text-align"=>"center")),
         html_table(
             [
                 html_thead([html_tr([html_th("Category"), html_th("Average $inc_exp")])]),
-                html_tbody([
-                    html_tr([
-                        html_td(means[row, col]) for col in cols
-                    ]) for row in rows
-                ])
+                html_tbody(
+                    append!(
+                        [
+                            html_tr([
+                                html_td("Total"), html_td(sum(means[:, "Transaction_sum_mean"]))
+                            ])
+
+                        ],
+                        [
+                            html_tr([
+                                html_td(means[row, col]) for col in cols
+                            ]) for row in rows
+                        ]
+                    )
+                )
             ],
             className="center"
         )
