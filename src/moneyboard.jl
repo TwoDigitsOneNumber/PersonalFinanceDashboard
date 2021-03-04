@@ -38,7 +38,7 @@ findUniqueChars(transactions.Expense)
 findUniqueChars(transactions.Income)
 
 # In columns Expense and Income
-# remove all characters that are not digits or a decimal point
+# todo: remove all characters that are not digits or a decimal point
 for col in [:Expense, :Income]
     findAndReplace!(transactions, col, r"CHF", "")  # remove CHF
     findAndReplace!(transactions, col, r"\u00A0", "")  # remove unicode space
@@ -101,6 +101,9 @@ transactions.YearMonth = [Dates.monthname(t) * " " * string(Dates.year(t)) for t
 transactions.YearWeek = ["Week " * string(Dates.week(t)) * " " * string(Dates.year(t)) for t in transactions.Date]
 transactions.Weekday = [Dates.dayname(t) for t in transactions.Date]
 transactions.Hour = [Dates.hour(t) for t in transactions.Time]
+transactions.CalendarMonth = [Dates.monthname(t) for t in transactions.Date]
+transactions.CalendarWeek = ["Week " * string(Dates.week(t)) for t in transactions.Date]
+transactions.CalendarWeekday = [Dates.dayname(t) * string(Dates.week(t)) for t in transactions.Date]
 
 
 # add column with all transactions

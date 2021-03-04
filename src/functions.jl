@@ -80,6 +80,14 @@ function convertColumnTypes(df::DataFrames.DataFrame, interval::AbstractString)
         df[!, interval] = DataFrames.CategoricalArray(df[!, interval])
         # define levels for sorting weekdays
         DataFrames.levels!(df[!, interval], ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
+    elseif (interval == "CalendarMonth")
+        df[!, interval] = DataFrames.CategoricalArray(df[!, interval])
+        # define levels for sorting calendar months
+        DataFrames.levels!(df[!, interval], ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"])
+    elseif (interval == "CalendarWeek")
+        df[!, interval] = DataFrames.CategoricalArray(df[!, interval])
+        # define levels for sorting calendar weeks
+        DataFrames.levels!(df[!, interval], ["Week $i" for i in 1:53])
     else
         append!(string_cols, [interval])
     end
@@ -95,6 +103,12 @@ function convertColumnTypes(df::DataFrames.DataFrame, interval::AbstractString)
     elseif "Transaction_sum" in names(df)
         df.Transaction_sum = convert(Array{Float64, 1}, df.Transaction_sum)
     end
+
+    # sort dataframe by interval
+    if (interval == "Weekday") | (interval == "CalendarMonth") | (interval == "CalendarWeek")
+        DataFrames.sort!(df, interval)
+    end
+
 
     return df
 end

@@ -50,7 +50,7 @@ callback!(
 
     agg_data = DataFrames.combine(
         DataFrames.groupby(agg_data, ["Flag", "Category", interval]), 
-        :Transaction=> sum
+        :Transaction=>sum
     )
 
     return JSON.json(Dict("agg_data"=>agg_data, "interval"=>interval))
@@ -77,9 +77,7 @@ callback!(
 
     agg_data, interval = unpackJSONData(json_data)
     agg_data = DataFrames.combine(DataFrames.groupby(agg_data, [interval, "Flag"]), :Transaction_sum=>sum)
-    if interval == "Weekday"
-        DataFrames.sort!(agg_data, interval)
-    end
+    convertColumnTypes(agg_data, interval)
 
     return PlotlyJS.Plot(
         # data traces
@@ -121,43 +119,173 @@ end
 callback!(
     app,
     Output("cumulative_income_expense", "figure"),
-    Input("aggregated_json_data", "children")
-) do json_data
+    Input("aggregated_json_data", "children"),
+    Input("date_range_json_data", "children")
+) do agg_json_data, date_range_json_data
+    
+    agg_data, interval = unpackJSONData(agg_json_data)
+
+    # if cumulative plot does not make sense show statistics on seasonality/cyclicality
+    if (interval in ["Weekday", "CalendarMonth", "CalendarWeek"])
+        # parse and convert relevant column types
+        date_range_data = DataFrames.DataFrame(JSON.parse(date_range_json_data, null=missing))
+        agg_data = convertColumnTypes(date_range_data, interval)
+
+        # set correct aggregation column
+        if interval == "Weekday"
+            agg_by = "CalendarWeekday"
+        elseif interval == "CalendarMonth"
+            agg_by = "YearMonth"
+        elseif interval == "CalendarWeek"
+            agg_by = "YearWeek"
+        end
+
+
+        agg_data = DataFrames.combine(
+            DataFrames.groupby(agg_data, ["Flag", agg_by, interval]), 
+            :Transaction=>sum
+        )
+
+        means = DataFrames.combine(
+            DataFrames.groupby(agg_data, ["Flag", interval]), 
+            :Transaction_sum=>mean
+        )
+        stds = DataFrames.combine(
+            DataFrames.groupby(agg_data, ["Flag", interval]), 
+            :Transaction_sum=>std
+        )
+
+        return PlotlyJS.Plot(
+            [
+                PlotlyJS.scatter(
+                    x = unique(agg_data[:, interval]),
+                    y = means[means.Flag .== "Income", :].Transaction_sum_mean,
+                    name = "Average Income"
+                ),
+                PlotlyJS.scatter(
+                    x = unique(agg_data[:, interval]),
+                    y = means[means.Flag .== "Expense", :].Transaction_sum_mean,
+                    name = "Average Expense"
+                ),
+                PlotlyJS.scatter(
+                    x = unique(agg_data[:, interval]),
+                    y = stds[means.Flag .== "Income", :].Transaction_sum_std,
+                    name = "Std. Dev. Income"
+                ),
+                PlotlyJS.scatter(
+                    x = unique(agg_data[:, interval]),
+                    y = stds[means.Flag .== "Expense", :].Transaction_sum_std,
+                    name = "Std. Dev. Expense"
+                )
+            ],
+            PlotlyJS.Layout(
+                title = "Seasonality/Cyclicality",
+                yaxis_title = "CHF"
+            )
+        )
+    
+    
+    # show cumulative plot
+    else
+        agg_data = DataFrames.combine(DataFrames.groupby(agg_data, [interval, "Flag"]), :Transaction_sum=>sum)
+        convertColumnTypes(agg_data, interval)
+
+        return PlotlyJS.Plot(
+            # traces
+            [
+                # income
+                PlotlyJS.scatter(
+                    x = unique(agg_data[:, interval]),
+                    y = cumsum(agg_data[agg_data.Flag .== "Income", :].Transaction_sum_sum),
+                    name = "Cumulative Income"
+                ),
+                # expense
+                PlotlyJS.scatter(
+                    x = unique(agg_data[:, interval]),
+                    y = cumsum(agg_data[agg_data.Flag .== "Expense", :].Transaction_sum_sum),
+                    name = "Cumulative Expense"
+                ),
+                # net income
+                PlotlyJS.scatter(
+                    x = unique(agg_data[:, interval]),
+                    y = cumsum(agg_data[agg_data.Flag .== "Income", :].Transaction_sum_sum) - cumsum(agg_data[agg_data.Flag .== "Expense", :].Transaction_sum_sum),
+                    name = "Cumulative Net Income"
+                )
+            ],
+            PlotlyJS.Layout(
+                title = "Cumulative Income and Expenses",
+                yaxis_title = "CHF"
+            )
+        )
+    end
+end
+
+
+
+
+
+callback!(
+    app,
+    Output("bar_category_chart", "figure"),
+    Input("aggregated_json_data", "children"),
+    Input("income_expense_overview_picker", "value")
+) do json_data, inc_exp
     
     agg_data, interval = unpackJSONData(json_data)
-    agg_data = DataFrames.combine(DataFrames.groupby(agg_data, [interval, "Flag"]), :Transaction_sum=>sum)
-    if interval == "Weekday"
-        DataFrames.sort!(agg_data, interval)
-    end
+    agg_data = DataFrames.dropmissing(agg_data[agg_data.Flag .== inc_exp, :], [:Category])
+    agg_data = convertColumnTypes(agg_data, interval)
+
+    bar_traces = [
+        PlotlyJS.bar(
+            x = unique(agg_data[:, interval]),
+            y = agg_data[agg_data.Category .== category, "Transaction_sum"],
+            name = category
+        ) for category in unique(skipmissing(agg_data.Category))
+    ]
 
     return PlotlyJS.Plot(
-        # traces
-        [
-            # income
-            PlotlyJS.scatter(
-                x = unique(agg_data[:, interval]),
-                y = cumsum(agg_data[agg_data.Flag .== "Income", :].Transaction_sum_sum),
-                name = "Cumulative Income"
-            ),
-            # expense
-            PlotlyJS.scatter(
-                x = unique(agg_data[:, interval]),
-                y = cumsum(agg_data[agg_data.Flag .== "Expense", :].Transaction_sum_sum),
-                name = "Cumulative Expense"
-            ),
-            # net income
-            PlotlyJS.scatter(
-                x = unique(agg_data[:, interval]),
-                y = cumsum(agg_data[agg_data.Flag .== "Income", :].Transaction_sum_sum) - cumsum(agg_data[agg_data.Flag .== "Expense", :].Transaction_sum_sum),
-                name = "Cumulative Net Income"
-            )
-        ],
+        bar_traces,
         PlotlyJS.Layout(
-            title = "Cumulative Income and Expenses",
+            title = "$inc_exp by Category over Time (absolute)",
             yaxis_title = "CHF"
         )
     )
 end
+
+
+
+# average income/expense per interval
+callback!(
+    app,
+    Output("average_per_category", "children"),
+    Input("aggregated_json_data", "children"),
+    Input("income_expense_overview_picker", "value")
+) do json_data, inc_exp
+
+    agg_data, interval = unpackJSONData(json_data)
+    agg_data = DataFrames.dropmissing(agg_data[agg_data.Flag .== inc_exp, :], [:Category])
+    agg_data = convertColumnTypes(agg_data, interval)
+
+    means = DataFrames.combine(DataFrames.groupby(agg_data, [:Category]), :Transaction_sum=>mean)
+    cols = ["Category", "Transaction_sum_mean"]
+    rows = 1:DataFrames.nrow(means)
+
+    return html_div([
+        html_h5("Average $inc_exp per Category", style=Dict("text-align"=>"center")),
+        html_table(
+            [
+                html_thead([html_tr([html_th("Category"), html_th("Average $inc_exp")])]),
+                html_tbody([
+                    html_tr([
+                        html_td(means[row, col]) for col in cols
+                    ]) for row in rows
+                ])
+            ],
+            className="center"
+        )
+    ])
+end
+
 
 
 
@@ -190,6 +318,9 @@ callback!(
     )   
 
 end
+
+
+
 
 
 # filled_area_plot
@@ -228,33 +359,6 @@ end
 
 
 
-
-callback!(
-    app,
-    Output("bar_category_chart", "figure"),
-    Input("aggregated_json_data", "children"),
-    Input("income_expense_overview_picker", "value")
-) do json_data, inc_exp
-    
-    agg_data, interval = unpackJSONData(json_data)
-    agg_data = DataFrames.dropmissing(agg_data[agg_data.Flag .== inc_exp, :], [:Category])
-
-    bar_traces = [
-        PlotlyJS.bar(
-            x = unique(agg_data[:, interval]),
-            y = agg_data[agg_data.Category .== category, "Transaction_sum"],
-            name = category
-        ) for category in unique(skipmissing(agg_data.Category))
-    ]
-
-    return PlotlyJS.Plot(
-        bar_traces,
-        PlotlyJS.Layout(
-            title = "$inc_exp by Category over Time (absolute)",
-            yaxis_title = "CHF"
-        )
-    )
-end
 
 
 # callback weekday_heatmap
@@ -497,5 +601,6 @@ callback!(
         )
     ])
 end
+
 
 

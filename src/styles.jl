@@ -51,6 +51,14 @@ fin_style = let
         "#8EBA42", "#FFB5B8"
     ])
 
+    # colors = PlotlyJS.Cycler([
+    #     "#408E2F",  # green
+    #     "#A43741",  # red
+    #     "#AA5B39",  # orange
+    #     "#AA7439",  # beige
+    #     "#27586B",  # blue
+    # ])
+
     gta = PlotlyJS.attr(
         marker_line_width=0.5, marker_line_color="#348ABD", marker_color=colors
     )

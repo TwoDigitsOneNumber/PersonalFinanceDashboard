@@ -23,7 +23,9 @@ interval_options = [
     (label="Weekly", value="YearWeek"),
     (label="Daily", value="Date"),
     # (label="Hourly", value="Hour"),  # todo: make sure that all hours are in expense and income sub-dataframe
-    (label="Weekday", value="Weekday")
+    (label="By Weekday", value="Weekday"),
+    (label="By Calendar Month", value="CalendarMonth"),
+    (label="By Calendar Week", value="CalendarWeek")
 ]
 
 
@@ -66,7 +68,7 @@ function getOverview()
                         [
                             html_div(
                                 [
-                                    "Select an interval:",
+                                    "Aggregate the data:",
                                     dcc_dropdown(
                                         id = "interval_picker",
                                         options = interval_options,
@@ -140,7 +142,8 @@ function getOverview()
 
             html_div(
                 [
-                    html_div([dcc_graph(id="bar_category_chart")], className="col-12")
+                    html_div([dcc_graph(id="bar_category_chart")], className="col-8"),
+                    html_div(id="average_per_category", className="col-4")
                 ],
                 className="row"
             ),
