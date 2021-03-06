@@ -21,17 +21,22 @@ cc["darkwhite"] = "#"*Colors.hex(Colors.RGBA(205/255, 205/255, 205/255, 1), :RRG
 
 
 
-cc["green"] = "#"*Colors.hex(Colors.RGBA(0/255, 217/255, 108/255, 1), :RRGGBB)
+cc["green"] = "#"*Colors.hex(Colors.RGBA(0/255, 221/255, 111/255, 1), :RRGGBB)
 cc["lightblue"] = "#"*Colors.hex(Colors.RGBA(122/255, 191/255, 228/255, 1), :RRGGBB)
 cc["pink"] = "#"*Colors.hex(Colors.RGBA(204/255, 0/255, 204/255, 1), :RRGGBB)
 cc["red"] = "#"*Colors.hex(Colors.RGBA(255/255, 77/255, 77/255, 1), :RRGGBB)
 cc["orange"] = "#"*Colors.hex(Colors.RGBA(255/255, 128/255, 0/255, 1), :RRGGBB)
-cc["yellow"] = "#"*Colors.hex(Colors.RGBA(221/255, 221/255, 0/255, 1), :RRGGBB)
+cc["yellow"] = "#"*Colors.hex(Colors.RGBA(234/255, 234/255, 0/255, 1), :RRGGBB)
 cc["darkblue"] = "#"*Colors.hex(Colors.RGBA(30/255, 107/255, 149/255, 1), :RRGGBB)
 cc["gray"] = "#"*Colors.hex(Colors.RGBA(25/255, 25/255, 31/255, 1), :RRGGBB)
+cc["violet"] = "#"*Colors.hex(Colors.RGBA(128/255, 0/255, 225/255, 1), :RRGGBB)
+cc["brown"] = "#"*Colors.hex(Colors.RGBA(128/255, 64/255, 64/255, 1), :RRGGBB)
+cc["darkgreen"] = "#"*Colors.hex(Colors.RGBA(0/255, 128/255, 64/255, 1), :RRGGBB)
+
 
 
 # pick colors to cycle through in plots with multiple colors
+# mind the order!
 cc["cycler"] = [
     cc["darkblue"],
     cc["lightblue"],
@@ -39,6 +44,9 @@ cc["cycler"] = [
     cc["orange"],
     cc["red"],
     cc["pink"],
+    cc["violet"],
+    cc["brown"],
+    cc["darkgreen"],
     cc["green"]
 ]
 
@@ -71,20 +79,6 @@ fin_style = let
         yaxis_automargin = true
     )
 
-    # # ggplot colors
-    # colors = PlotlyJS.Cycler([
-    #     "#348ABD", "#E24A33", "#988ED5", "#777777", "#FBC15E",
-    #     "#8EBA42", "#FFB5B8"
-    # ])
-
-    # colors = PlotlyJS.Cycler([
-    #     "#408E2F",  # green
-    #     "#A43741",  # red
-    #     "#AA5B39",  # orange
-    #     "#AA7439",  # beige
-    #     "#27586B",  # blue
-    # ])
-
     colors = PlotlyJS.Cycler(cc["cycler"])
 
     gta = PlotlyJS.attr(
@@ -100,8 +94,8 @@ theme_dark = Dict(
     "accent" => cc["darkblue"],
     "text" => cc["darkwhite"],
     "plot_style" => fin_style,
-    "Income" => cc["green"],
-    "Expense" => cc["red"],
+    "Income" => cc["darkblue"],
+    "Expense" => cc["lightblue"],
     "cycler" => cc["cycler"]
 )
 

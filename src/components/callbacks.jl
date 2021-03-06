@@ -270,6 +270,7 @@ callback!(
     cols = ["Category", "Transaction_sum_mean"]
     rows = 1:DataFrames.nrow(means)
     means[!, "Transaction_sum_mean"] = round.(means[!, "Transaction_sum_mean"], digits=2)
+    DataFrames.sort!(means, "Category")
 
     if (interval == "Weekday")
         interval = "Day"
