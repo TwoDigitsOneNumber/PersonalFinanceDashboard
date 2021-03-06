@@ -21,6 +21,31 @@ cc["darkwhite"] = "#"*Colors.hex(Colors.RGBA(205/255, 205/255, 205/255, 1), :RRG
 
 
 
+cc["green"] = "#"*Colors.hex(Colors.RGBA(0/255, 217/255, 108/255, 1), :RRGGBB)
+cc["lightblue"] = "#"*Colors.hex(Colors.RGBA(122/255, 191/255, 228/255, 1), :RRGGBB)
+cc["pink"] = "#"*Colors.hex(Colors.RGBA(204/255, 0/255, 204/255, 1), :RRGGBB)
+cc["red"] = "#"*Colors.hex(Colors.RGBA(255/255, 77/255, 77/255, 1), :RRGGBB)
+cc["orange"] = "#"*Colors.hex(Colors.RGBA(255/255, 128/255, 0/255, 1), :RRGGBB)
+cc["yellow"] = "#"*Colors.hex(Colors.RGBA(221/255, 221/255, 0/255, 1), :RRGGBB)
+cc["darkblue"] = "#"*Colors.hex(Colors.RGBA(30/255, 107/255, 149/255, 1), :RRGGBB)
+cc["gray"] = "#"*Colors.hex(Colors.RGBA(25/255, 25/255, 31/255, 1), :RRGGBB)
+
+
+# pick colors to cycle through in plots with multiple colors
+cc["cycler"] = [
+    cc["darkblue"],
+    cc["lightblue"],
+    cc["yellow"],
+    cc["orange"],
+    cc["red"],
+    cc["pink"],
+    cc["green"]
+]
+
+
+
+
+
 # --------------------------------------------------------------------
 # custom plot style
 
@@ -38,7 +63,7 @@ fin_style = let
         paper_bgcolor = cc["gray"],
         font_size = 12,
         xaxis = axis,
-        yaxis=axis,
+        yaxis = axis,
         titlefont_size=18,
         # legend_font_color = cc["darkwhite"],
         font_color = cc["darkwhite"],
@@ -46,10 +71,11 @@ fin_style = let
         yaxis_automargin = true
     )
 
-    colors = PlotlyJS.Cycler([
-        "#348ABD", "#E24A33", "#988ED5", "#777777", "#FBC15E",
-        "#8EBA42", "#FFB5B8"
-    ])
+    # # ggplot colors
+    # colors = PlotlyJS.Cycler([
+    #     "#348ABD", "#E24A33", "#988ED5", "#777777", "#FBC15E",
+    #     "#8EBA42", "#FFB5B8"
+    # ])
 
     # colors = PlotlyJS.Cycler([
     #     "#408E2F",  # green
@@ -58,6 +84,8 @@ fin_style = let
     #     "#AA7439",  # beige
     #     "#27586B",  # blue
     # ])
+
+    colors = PlotlyJS.Cycler(cc["cycler"])
 
     gta = PlotlyJS.attr(
         marker_line_width=0.5, marker_line_color="#348ABD", marker_color=colors
@@ -71,7 +99,10 @@ theme_dark = Dict(
     "background" => cc["gray"],
     "accent" => cc["darkblue"],
     "text" => cc["darkwhite"],
-    "plot_style" => fin_style
+    "plot_style" => fin_style,
+    "Income" => cc["green"],
+    "Expense" => cc["red"],
+    "cycler" => cc["cycler"]
 )
 
 # theme_light = Dict(

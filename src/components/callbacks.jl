@@ -269,6 +269,7 @@ callback!(
     means = DataFrames.combine(DataFrames.groupby(agg_data, [:Category]), :Transaction_sum=>mean)
     cols = ["Category", "Transaction_sum_mean"]
     rows = 1:DataFrames.nrow(means)
+    means[!, "Transaction_sum_mean"] = round.(means[!, "Transaction_sum_mean"], digits=2)
 
     if (interval == "Weekday")
         interval = "Day"
@@ -278,8 +279,11 @@ callback!(
         interval = "Week"
     end
 
+    # fixme: naming of interval variable in title sometimes off.
+    # fixme: calculation for monthly and calendar month yields different results.
+
     return html_div([
-        html_h5("Average $inc_exp per $interval Category", style=Dict("text-align"=>"center")),
+        html_h5("Average $inc_exp per $interval by Category", style=Dict("text-align"=>"center")),
         html_table(
             [
                 html_thead([html_tr([html_th("Category"), html_th("Average $inc_exp")])]),
@@ -287,7 +291,7 @@ callback!(
                     append!(
                         [
                             html_tr([
-                                html_td("Total"), html_td(sum(means[:, "Transaction_sum_mean"]))
+                                html_td("Total"), html_td(round(sum(means[:, "Transaction_sum_mean"]), digits=2))
                             ])
 
                         ],
@@ -322,19 +326,32 @@ callback!(
         :Transaction_sum => sum
     )
 
+    # repeat cycler colors enough for all transactions (else picks default colors, and ignores argument)
+    n = length(agg_data.Transaction_sum_sum)
+    k = length(current_theme[inc_exp])
+    if (k < n)
+        colors = []
+        for i in 1:(div(n, k)+1)
+            append!(colors, current_theme["cycler"])
+        end
+    else
+        colors = current_theme["cycler"]
+    end
+    colors = colors[1:n]
+
     return PlotlyJS.Plot(
         # traces
         [
             PlotlyJS.pie(
                 values = agg_data.Transaction_sum_sum,
                 labels = agg_data.Category,
+                marker_colors = colors
             )
         ],
         PlotlyJS.Layout(
             title="Total $inc_exp by Category"
         )
     )   
-
 end
 
 
@@ -412,7 +429,7 @@ callback!(
                 x = agg_data[agg_data.Flag .== inc_exp, interval],
                 y = agg_data[agg_data.Flag .== inc_exp, "Weekday"],
                 z = agg_data[agg_data.Flag .== inc_exp, "Transaction_sum"],
-                colorscale = [[0, current_theme["background"]], [1, (inc_exp=="Income" ? "green" : "red")]]
+                colorscale = [[0, current_theme["background"]], [1, current_theme[inc_exp]]]
 
             )
         ],
@@ -486,14 +503,18 @@ end
 callback!(
     app,
     Output("histogram", "figure"),
-    Input("json_category_data", "children")
-) do json_data
+    Input("json_category_data", "children"),
+    Input("flag_picker", "value")
+) do json_data, flag
 
     category_data = DataFrames.DataFrame(JSON.parse(json_data, null=missing))
-    
+
     return PlotlyJS.Plot(
         [
-            PlotlyJS.histogram(x = category_data.Transaction)
+            PlotlyJS.histogram(
+                x = category_data.Transaction,
+                marker_color = current_theme[flag]
+            )
         ],
         PlotlyJS.Layout(
             title = "Histogram"
@@ -507,8 +528,9 @@ end
 callback!(
     app,
     Output("transaction_time_plot", "figure"),
-    Input("json_category_data", "children")
-) do json_data
+    Input("json_category_data", "children"),
+    Input("flag_picker", "value")
+) do json_data, flag
     
     category_data = DataFrames.DataFrame(JSON.parse(json_data, null=missing))
     category_data = convertColumnTypes(category_data, "Date")
@@ -523,7 +545,8 @@ callback!(
                 x = category_data.Date,
                 y = category_data.Transaction,
                 mode = "markers",
-                text = transaction_info
+                text = transaction_info,
+                marker_color = current_theme[flag]
             )
         ],
         PlotlyJS.Layout(
@@ -585,12 +608,15 @@ end
 
 
 
-# top ten transaction table
+# top transaction table
 callback!(
     app,
-    Output("top_ten_transactions", "children"),
+    Output("top_transactions", "children"),
     Input("json_category_data", "children")
 ) do json_data
+
+    # number of top transactions
+    n = 15
     
     category_data = DataFrames.DataFrame(JSON.parse(json_data, null=missing))
     category_data = convertColumnTypes(category_data, "Date")
@@ -599,13 +625,13 @@ callback!(
     DataFrames.sort!(category_data, :Transaction, rev=true)
 
     # add position to dataframe to be displayed
-    pos = 1:min(DataFrames.nrow(category_data), 10)
+    pos = 1:min(DataFrames.nrow(category_data), n)
     sub_df = category_data[pos, :]
     sub_df[:, "Position"] = pos
     cols = ["Position", "Transaction", "Date", "Category", "Name"]
 
     return html_div([
-        html_h5("Top 10 Transactions", style=Dict("text-align"=>"center")),
+        html_h5("Top $n Transactions", style=Dict("text-align"=>"center")),
         html_table(
             [
                 html_thead(html_tr([html_th(col) for col in cols])),

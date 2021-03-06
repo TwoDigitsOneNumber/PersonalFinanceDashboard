@@ -19,7 +19,7 @@ end
 
 
 
-function findAndReplace!(df::DataFrames.DataFrame, column, find_::Regex, replace_::AbstractString)
+function findAndReplace!(df::DataFrames.DataFrame, column, find_, replace_::AbstractString)
     for row in eachrow(df)
         if isa(row[column], AbstractString)  # type check: replace only on string defined
             row[column] = replace(row[column], find_=>replace_)

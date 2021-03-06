@@ -93,31 +93,36 @@ function getTransactions()
 
             # graphs and tables
 
+
             html_div(
                 [
-                    html_div([dcc_graph(id="histogram")], className="col-4"),
-                    html_div([dcc_graph(id="transaction_time_plot")], className="col-8")
+                    html_div(
+                        [
+                            html_div([dcc_graph(id="transaction_time_plot")], className="col-12"),
+                            html_div(
+                                [
+                                    html_div([dcc_graph(id="histogram")], className="col-6"),
+                                    html_div(id = "distribution_statistics", className = "col-6")
+                                ],
+                                className="row"
+                            )
+                        ],
+                        className="col-7"
+                    ),
+                    html_div(
+                        [
+                            html_div(
+                                id = "top_transactions"
+                            ),
+                        ],
+                        className = "col-5"
+                    )
                 ],
-                className = "row"
-            ),
+                className="row"
+            )
 
 
             # tables
-            html_div(
-                [
-                    html_div([], className="col-1"),
-                    html_div(
-                        id = "distribution_statistics",
-                        className = "col-5"
-                    ),
-                    html_div(
-                        id = "top_ten_transactions",
-                        className = "col-5"
-                    ),
-                    html_div([], className="col-1")
-                ],
-                className = "row"
-            )
 
 
             # todo: add tables

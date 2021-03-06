@@ -22,27 +22,29 @@ transactions = DataFrame(CSV.File("../data/Moneyboard.csv"; ignoreemptylines=tru
 # clean dataset
 
 
-# remove last row
-transactions = transactions[1:end-1, :]
+
+# # remove last row
+# transactions = transactions[1:end-1, :]
 
 # convert columns Date and Time to type DateType and TimeType
 transactions.Date = Dates.Date.(transactions.Date, "dd.mm.yy") + Dates.Year(2000)
-transactions.Time = Dates.Time.(transactions.Time, "HH:MM")
+# transactions.Time = Dates.Time.(transactions.Time, "HH:MM")
 
-# todo: automate: remove all non digit characters that occur in certain collumns
 # find all unique characters (especially non-ASCII characters)
-findUniqueChars(transactions.Category)
-findUniqueChars(transactions.Name)
-findUniqueChars(transactions.Notes)
-findUniqueChars(transactions.Expense)
-findUniqueChars(transactions.Income)
+chars = findUniqueChars(transactions.Expense)
+append!(chars, findUniqueChars(transactions.Income))
+unique!(chars)
+
+# list of digits and decimal point
+digits_and_point = ['0','1','2','3','4','5','6','7','8','9','.']
+
+chars_to_remove = [i for i in chars if ~in(i, digits_and_point)]
 
 # In columns Expense and Income
-# todo: remove all characters that are not digits or a decimal point
 for col in [:Expense, :Income]
-    findAndReplace!(transactions, col, r"CHF", "")  # remove CHF
-    findAndReplace!(transactions, col, r"\u00A0", "")  # remove unicode space
-    findAndReplace!(transactions, col, r"\u2019", "")  # remove unicode quote
+    for i in chars_to_remove
+        findAndReplace!(transactions, col, i, "")
+    end
 end
 
 # convert columns Expense and Income to type Float64

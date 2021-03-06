@@ -116,6 +116,8 @@ function getOverview()
 
 
             # income/expense overview graphs
+
+            # income/expense picker dropdown
             html_div(
                 [
                     html_div([], className="col-1"),
@@ -143,28 +145,31 @@ function getOverview()
             html_div(
                 [
                     html_div([dcc_graph(id="bar_category_chart")], className="col-8"),
-                    html_div(id="average_per_category", className="col-4")
+                    html_div([dcc_graph(id="pie_chart")], className="col-4")
                 ],
                 className="row"
             ),
 
 
+            # row with long column on the right
             html_div(
                 [
-                    html_div([dcc_graph(id="pie_chart")], className="col-4"),
-                    html_div([dcc_graph(id="filled_area_plot")], className="col-8")
-                ],
-                className="row"
-            ),
-
-
-            html_div(
-                [
-                    html_div([dcc_graph(id="weekday_heatmap")], className="col-12")
+                    html_div(
+                        [
+                            html_div([dcc_graph(id="filled_area_plot")], className="col-12"),
+                            html_div([dcc_graph(id="weekday_heatmap")], className="col-12")
+                        ],
+                        className="col-8"
+                    ),
+                    html_div(
+                        [
+                            html_div(id="average_per_category")
+                        ],
+                        className="col-4"
+                    )
                 ],
                 className="row"
             )
-
         ]
     )
 
