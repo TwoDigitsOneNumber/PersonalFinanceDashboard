@@ -1,0 +1,8 @@
+name = "PFD"
+uuid = "8a20cd23-0009-4bcc-84a1-e74a5f8cd2da"
+authors = ["TwoDigitsOneNumber <52537652+TwoDigitsOneNumber@users.noreply.github.com>"]
+version = "0.1.0"
+
+[deps]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"

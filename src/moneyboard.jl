@@ -119,5 +119,5 @@ DataFrames.sort!(transactions, [:Date, :Time])
 # --------------------------------------------------------------------
 # save clean dataframe
 
-CSV.write("../data/clean_data.csv", transactions)
+CSV.write("../data/preprocessed_data.csv", transactions)
 

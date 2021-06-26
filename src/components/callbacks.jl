@@ -79,6 +79,13 @@ callback!(
     agg_data = DataFrames.combine(DataFrames.groupby(agg_data, [interval, "Flag"]), :Transaction_sum=>sum)
     convertColumnTypes(agg_data, interval)
 
+    avg_savings_rate = round(
+        mean(
+            (1 - sum(agg_data[agg_data.Flag .== "Expense", :].Transaction_sum_sum) / sum(agg_data[agg_data.Flag .== "Income", :].Transaction_sum_sum)) .* 100
+        ),
+        digits=2
+    )
+
     return PlotlyJS.Plot(
         # data traces
         [
@@ -99,6 +106,13 @@ callback!(
                 x = unique(agg_data[:, interval]),
                 y = (1 .- agg_data[agg_data.Flag .== "Expense", :].Transaction_sum_sum ./ agg_data[agg_data.Flag .== "Income", :].Transaction_sum_sum) .* 100, 
                 name = "Savings Rate",
+                yaxis = "y2"
+            ),
+            # average savings rate
+            PlotlyJS.scatter(
+                x = unique(agg_data[:, interval]),
+                y = repeat([avg_savings_rate], length(unique(agg_data[:, interval]))),
+                name = "Average Savings Rate",
                 yaxis = "y2"
             )
         ],
@@ -209,7 +223,7 @@ callback!(
                 PlotlyJS.scatter(
                     x = unique(agg_data[:, interval]),
                     y = cumsum(agg_data[agg_data.Flag .== "Income", :].Transaction_sum_sum) - cumsum(agg_data[agg_data.Flag .== "Expense", :].Transaction_sum_sum),
-                    name = "Cumulative Net Income"
+                    name = "Cumulative Savings"
                 )
             ],
             PlotlyJS.Layout(
@@ -223,7 +237,7 @@ end
 
 
 
-
+# vertical bar chart of income/expense over time
 callback!(
     app,
     Output("bar_category_chart", "figure"),
@@ -254,7 +268,7 @@ end
 
 
 
-# average income/expense per interval
+# average income/expense per interval by category (table)
 callback!(
     app,
     Output("average_per_category", "children"),
@@ -274,14 +288,12 @@ callback!(
 
     if (interval == "Weekday")
         interval = "Day"
-    elseif (interval == "CalendarMonth")
+    elseif (interval == "CalendarMonth" || interval == "YearMonth")
         interval = "Month"
-    elseif (interval == "CalendarWeek")
+    elseif (interval == "CalendarWeek" || interval == "YearWeek")
         interval = "Week"
     end
 
-    # fixme: naming of interval variable in title sometimes off.
-    # fixme: calculation for monthly and calendar month yields different results.
 
     return html_div([
         html_h5("Average $inc_exp per $interval by Category", style=Dict("text-align"=>"center")),
@@ -559,7 +571,7 @@ end
 
 
 
-# distribution statistics
+# distribution statistics table
 callback!(
     app,
     Output("distribution_statistics", "children"),
@@ -585,7 +597,7 @@ callback!(
                         ]),
                         html_tr([
                             html_td(["Median"]),
-                            html_td([median(category_data.Transaction)]),
+                            html_td([round(median(category_data.Transaction), digits=2)]),
                         ]),
                         html_tr([
                             html_td(["Min"]),
@@ -598,6 +610,10 @@ callback!(
                         html_tr([
                             html_td(["Number of Transactions"]),
                             html_td([length(category_data.Transaction)])
+                        ]),
+                        html_tr([
+                            html_td(["Total (sum)"]),
+                            html_td([round(sum(category_data.Transaction), digits=2)])
                         ])
                     ])
                 ],

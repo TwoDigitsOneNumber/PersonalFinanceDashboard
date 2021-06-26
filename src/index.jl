@@ -16,10 +16,10 @@ include("components/callbacks.jl")
 
 # load clean_data or demo data if clean_data is not found
 data_path = "../data/"
-if isfile(data_path*"clean_data.csv") 
-    data_file = "clean_data.csv"
+if isfile(data_path*"preprocessed_data.csv") 
+    data_file = "preprocessed_data.csv"
 else
-    data_file = "demo_fakedata.csv"
+    data_file = "artificial_demo_data.csv"
 end
 clean_data = DataFrames.DataFrame(CSV.File(data_path*data_file))
 # make Year array categorical
