@@ -120,14 +120,6 @@ function getTransactions()
                 ],
                 className="row"
             )
-
-
-            # tables
-
-
-            # todo: add tables
-            # table1: summary stats on distribution
-            # table2: largest transactions (top 10?)
         ]
     )
 
