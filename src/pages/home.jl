@@ -1,7 +1,7 @@
 # this is the landing page
 # it provides info about the app and how to use it
 
-using Dash, DashHtmlComponents, DashCoreComponents
+using Dash
 
 include("../styles.jl")
 include("../components/header.jl")

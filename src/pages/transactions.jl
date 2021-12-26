@@ -1,6 +1,6 @@
 # this page allows for a detailed look at individual transactions
 
-using Dash, DashHtmlComponents, DashCoreComponents
+using Dash
 import PlotlyJS
 import JSON
 import Dates
@@ -10,7 +10,7 @@ import Dates
 include("../app.jl")
 include("../functions.jl")
 include("../styles.jl")
-PlotlyJS.use_style!(current_theme["plot_style"])
+# PlotlyJS.use_style!(current_theme["plot_style"])  # deprecated 
 
 
 

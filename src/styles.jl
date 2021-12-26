@@ -57,43 +57,43 @@ cc["cycler"] = [
 # --------------------------------------------------------------------
 # custom plot style
 
-# define style to use for all plots
-fin_style = let
-    axis = PlotlyJS.attr(
-        color = cc["darkwhite"],
-        font_size = 12
-        # showgrid = true,
-        # gridcolor = cc["darkwhite"],
-    )
+# # define style to use for all plots
+# fin_style = let
+#     axis = PlotlyJS.attr(
+#         color = cc["darkwhite"],
+#         font_size = 12
+#         # showgrid = true,
+#         # gridcolor = cc["darkwhite"],
+#     )
 
-    layout = PlotlyJS.Layout(
-        plot_bgcolor = cc["gray"],
-        paper_bgcolor = cc["gray"],
-        font_size = 12,
-        xaxis = axis,
-        yaxis = axis,
-        titlefont_size=18,
-        # legend_font_color = cc["darkwhite"],
-        font_color = cc["darkwhite"],
-        xaxis_automargin = true,
-        yaxis_automargin = true
-    )
+#     layout = PlotlyJS.Layout(
+#         plot_bgcolor = cc["gray"],
+#         paper_bgcolor = cc["gray"],
+#         font_size = 12,
+#         xaxis = axis,
+#         yaxis = axis,
+#         titlefont_size=18,
+#         # legend_font_color = cc["darkwhite"],
+#         font_color = cc["darkwhite"],
+#         xaxis_automargin = true,
+#         yaxis_automargin = true
+#     )
 
-    colors = PlotlyJS.Cycler(cc["cycler"])
+#     colors = PlotlyJS.Cycler(cc["cycler"])
 
-    gta = PlotlyJS.attr(
-        marker_line_width=0.5, marker_line_color="#348ABD", marker_color=colors
-    )
+#     gta = PlotlyJS.attr(
+#         marker_line_width=0.5, marker_line_color="#348ABD", marker_color=colors
+#     )
 
-    PlotlyJS.Style(layout=layout, global_trace=gta)
-end
+#     # PlotlyJS.Style(layout=layout, global_trace=gta)
+# end
 
 
 theme_dark = Dict(
     "background" => cc["gray"],
     "accent" => cc["darkblue"],
     "text" => cc["darkwhite"],
-    "plot_style" => fin_style,
+    # "plot_style" => fin_style,
     "Income" => cc["darkblue"],
     "Expense" => cc["lightblue"],
     "cycler" => cc["cycler"]

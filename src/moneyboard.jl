@@ -13,7 +13,7 @@ import PlotlyJS
 include("functions.jl")
 
 # read dataframe
-transactions = DataFrame(CSV.File("../data/Moneyboard.csv"; ignoreemptylines=true, comment="#"))
+transactions = DataFrame(CSV.File("../data/Moneyboard.csv"; ignoreemptyrows=true, comment="#"))
 
 
 
@@ -27,6 +27,7 @@ transactions = DataFrame(CSV.File("../data/Moneyboard.csv"; ignoreemptylines=tru
 # transactions = transactions[1:end-1, :]
 
 # convert columns Date and Time to type DateType and TimeType
+# print(transactions.Date)
 transactions.Date = Dates.Date.(transactions.Date, "dd.mm.yy") + Dates.Year(2000)
 # transactions.Time = Dates.Time.(transactions.Time, "HH:MM")
 

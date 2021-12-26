@@ -3,9 +3,11 @@
 
 ## Instructions
 
-__Before running__ the app on your local machine, make sure the following conditions are met.
-* Use a Julia version >= 1.5 (lower versions might also work, but are not tested)
-* Manually install Plotly Dash as described [here](https://dash-julia.plotly.com/installation)
+__Before running__ the app on your local machine, make sure to instantiate the proper environment from the `Project.toml` file. First, `cd` into the repository and start a julia REPL session by typing `julia`. Then enter the package manager by typing `]` and run the following commands: 
+```
+activate .
+instantiate
+```
 
 
 In order to __run__ the dashboard, run the following steps in order. If you wish to run it using artificial demo data, you can skip steps 1-3.

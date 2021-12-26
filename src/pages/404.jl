@@ -1,6 +1,6 @@
 # this page gets displayed when an invalid url is provided
 
-using Dash, DashHtmlComponents, DashCoreComponents
+using Dash
 
 include("../styles.jl")
 include("../components/header.jl")
