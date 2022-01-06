@@ -28,7 +28,7 @@ transactions = DataFrame(CSV.File("../data/Moneyboard.csv"; ignoreemptyrows=true
 
 # convert columns Date and Time to type DateType and TimeType
 # print(transactions.Date)
-transactions.Date = Dates.Date.(transactions.Date, "dd.mm.yy") + Dates.Year(2000)
+transactions.Date = Dates.Date.(transactions.Date, Dates.DateFormat("dd.mm.yy")) + Dates.Year(2000)
 # transactions.Time = Dates.Time.(transactions.Time, "HH:MM")
 
 # find all unique characters (especially non-ASCII characters)

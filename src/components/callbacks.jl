@@ -1,5 +1,6 @@
 using Dash
 using Statistics
+using CategoricalArrays
 
 
 
@@ -121,7 +122,12 @@ callback!(
             yaxis_title = "CHF",
             yaxis2_title = "Savings Rate (%)",
             yaxis2_side = "right",
-            yaxis2_overlaying = "y"
+            yaxis2_overlaying = "y",
+            plot_bgcolor = current_theme["background"],
+            paper_bgcolor = current_theme["background"],
+            font_size = current_theme["font_size"],
+            titlefont_size = current_theme["titlefont_size"],
+            font_color = current_theme["font_color"]
         )
     )
 end
@@ -194,7 +200,12 @@ callback!(
             ],
             PlotlyJS.Layout(
                 title = "Seasonality/Cyclicality",
-                yaxis_title = "CHF"
+                yaxis_title = "CHF",
+                plot_bgcolor = current_theme["background"],
+                paper_bgcolor = current_theme["background"],
+                font_size = current_theme["font_size"],
+                titlefont_size = current_theme["titlefont_size"],
+                font_color = current_theme["font_color"]
             )
         )
     
@@ -228,7 +239,13 @@ callback!(
             ],
             PlotlyJS.Layout(
                 title = "Cumulative Income and Expenses",
-                yaxis_title = "CHF"
+                yaxis_title = "CHF",
+                plot_bgcolor = current_theme["background"],
+                paper_bgcolor = current_theme["background"],
+                font_size = current_theme["font_size"],
+                titlefont_size = current_theme["titlefont_size"],
+                font_color = current_theme["font_color"],
+                colorscale_sequential = current_theme["cycler"]
             )
         )
     end
@@ -261,7 +278,12 @@ callback!(
         bar_traces,
         PlotlyJS.Layout(
             title = "$inc_exp by Category over Time (absolute)",
-            yaxis_title = "CHF"
+            yaxis_title = "CHF",
+            plot_bgcolor = current_theme["background"],
+            paper_bgcolor = current_theme["background"],
+            font_size = current_theme["font_size"],
+            titlefont_size = current_theme["titlefont_size"],
+            font_color = current_theme["font_color"]
         )
     )
 end
@@ -362,7 +384,12 @@ callback!(
             )
         ],
         PlotlyJS.Layout(
-            title="Total $inc_exp by Category"
+            title="Total $inc_exp by Category",
+            plot_bgcolor = current_theme["background"],
+            paper_bgcolor = current_theme["background"],
+            font_size = current_theme["font_size"],
+            titlefont_size = current_theme["titlefont_size"],
+            font_color = current_theme["font_color"]
         )
     )   
 end
@@ -400,7 +427,12 @@ callback!(
         filled_area_traces,
         PlotlyJS.Layout(
             title = "$inc_exp by Category over Time (in %)",
-            yaxis_title = "%"
+            yaxis_title = "%",
+            plot_bgcolor = current_theme["background"],
+            paper_bgcolor = current_theme["background"],
+            font_size = current_theme["font_size"],
+            titlefont_size = current_theme["titlefont_size"],
+            font_color = current_theme["font_color"]
         )
     )
 end
@@ -431,9 +463,9 @@ callback!(
         DataFrames.groupby(agg_data, ["Flag", "Weekday", interval]), 
         :Transaction=> sum
     )
-    agg_data[!, "Weekday"] = DataFrames.CategoricalArray(agg_data[!, "Weekday"])
+    agg_data[!, "Weekday"] = CategoricalArray(agg_data[!, "Weekday"])
     # define levels for sorting weekdays
-    DataFrames.levels!(agg_data[!, "Weekday"], ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
+    levels!(agg_data[!, "Weekday"], ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
     DataFrames.sort!(agg_data, ["Weekday"])
 
     return PlotlyJS.Plot(
@@ -447,7 +479,12 @@ callback!(
             )
         ],
         PlotlyJS.Layout(
-            title = "$inc_exp by Weekday"
+            title = "$inc_exp by Weekday",
+            plot_bgcolor = current_theme["background"],
+            paper_bgcolor = current_theme["background"],
+            font_size = current_theme["font_size"],
+            titlefont_size = current_theme["titlefont_size"],
+            font_color = current_theme["font_color"]
         )
     )
 end
@@ -530,7 +567,12 @@ callback!(
             )
         ],
         PlotlyJS.Layout(
-            title = "Histogram"
+            title = "Histogram",
+            plot_bgcolor = current_theme["background"],
+            paper_bgcolor = current_theme["background"],
+            font_size = current_theme["font_size"],
+            titlefont_size = current_theme["titlefont_size"],
+            font_color = current_theme["font_color"]
         )
     )
 end
@@ -564,7 +606,12 @@ callback!(
         ],
         PlotlyJS.Layout(
             title = "Transactions over Time",
-            hovermode = "closest"
+            hovermode = "closest",
+            plot_bgcolor = current_theme["background"],
+            paper_bgcolor = current_theme["background"],
+            font_size = current_theme["font_size"],
+            titlefont_size = current_theme["titlefont_size"],
+            font_color = current_theme["font_color"]
         )
     )
 end

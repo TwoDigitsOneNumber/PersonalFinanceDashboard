@@ -1,5 +1,6 @@
 import Statistics
 import DataFrames
+using CategoricalArrays
 
 
 
@@ -77,17 +78,17 @@ function convertColumnTypes(df::DataFrames.DataFrame, interval::AbstractString)
     elseif (interval == "Date")
         df[!, interval] = [Dates.Date(i) for i in df[!, interval]]
     elseif (interval == "Weekday")
-        df[!, interval] = DataFrames.CategoricalArray(df[!, interval])
+        df[!, interval] = CategoricalArray(df[!, interval])
         # define levels for sorting weekdays
-        DataFrames.levels!(df[!, interval], ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
+        levels!(df[!, interval], ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
     elseif (interval == "CalendarMonth")
-        df[!, interval] = DataFrames.CategoricalArray(df[!, interval])
+        df[!, interval] = CategoricalArray(df[!, interval])
         # define levels for sorting calendar months
-        DataFrames.levels!(df[!, interval], ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"])
+        levels!(df[!, interval], ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"])
     elseif (interval == "CalendarWeek")
-        df[!, interval] = DataFrames.CategoricalArray(df[!, interval])
+        df[!, interval] = CategoricalArray(df[!, interval])
         # define levels for sorting calendar weeks
-        DataFrames.levels!(df[!, interval], ["Week $i" for i in 1:53])
+        levels!(df[!, interval], ["Week $i" for i in 1:53])
     else
         append!(string_cols, [interval])
     end

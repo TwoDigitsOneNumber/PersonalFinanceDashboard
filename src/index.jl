@@ -1,6 +1,7 @@
 using Dash
 import DataFrames
 import CSV
+using CategoricalArrays
 
 include("app.jl")
 include("components/callbacks.jl")
@@ -23,7 +24,7 @@ else
 end
 clean_data = DataFrames.DataFrame(CSV.File(data_path*data_file))
 # make Year array categorical
-clean_data[!, "Year"] = DataFrames.CategoricalArray(clean_data[!, "Year"])
+clean_data[!, "Year"] = CategoricalArray(clean_data[!, "Year"])
 
 
 # --------------------------------------------------------------------
