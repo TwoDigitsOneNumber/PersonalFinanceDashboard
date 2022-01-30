@@ -177,7 +177,7 @@ callback!(
     # compute array of savings rate over time in aggregated form
     savings_rate = (1 .- expenses ./ incomes) .* 100
     # replace inf and -inf by missing
-    savings_rate = replace(savings_rate, Inf=>missing, -Inf=>missing)
+    savings_rate = replace(savings_rate, Inf=>missing, -Inf=>missing, NaN=>missing)
 
     return PlotlyJS.Plot(
         # data traces
