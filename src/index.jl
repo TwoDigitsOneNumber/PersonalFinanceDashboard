@@ -7,7 +7,8 @@ include("app.jl")
 include("components/callbacks.jl")
 include("pages/404.jl")
 include("pages/home.jl")
-include("pages/overview.jl")
+# include("pages/overview.jl")
+include("pages/aggregated.jl")
 include("pages/transactions.jl")
 include("styles.jl")
 include("components/header.jl")
@@ -54,8 +55,10 @@ callback!(
 ) do pathname
     if (pathname == "/home") | (pathname == "/")
         return getHome()
-    elseif pathname == "/overview"
-        return getOverview()
+    # elseif pathname == "/overview"
+    #     return getOverview()
+    elseif pathname == "/aggregated"
+        return getAggregated()
     elseif pathname == "/transactions"
         return getTransactions()
     else

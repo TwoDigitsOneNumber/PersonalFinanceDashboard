@@ -10,7 +10,6 @@ import Dates
 include("../app.jl")
 include("../functions.jl")
 include("../styles.jl")
-# PlotlyJS.use_style!(current_theme["plot_style"])  # deprecated 
 
 
 
@@ -41,7 +40,8 @@ function getTransactions()
                                     )
                                 ],
                                 style = Dict(
-                                    "width" => "70%"
+                                    "width" => "70%",
+                                    "color" => "black"
                                 )
                             )
                         ],
@@ -64,7 +64,8 @@ function getTransactions()
                                 ],
                                 style = Dict(
                                     "width" => "70%",
-                                    "margin-top" => "5px"
+                                    "margin-top" => "5px",
+                                    "color" => "black"
                                 )
                             )
 

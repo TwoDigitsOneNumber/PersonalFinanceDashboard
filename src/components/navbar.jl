@@ -12,8 +12,13 @@ navbar = html_div(
             className = "col-2",
             style = Dict("color" => current_theme["text"])
         ),
+        # html_div(
+        #     dcc_link("Overview", href="/overview"),
+        #     className = "col-2",
+        #     style = Dict("color" => current_theme["text"])
+        # ),
         html_div(
-            dcc_link("Overview", href="/overview"),
+            dcc_link("Aggregated", href="/aggregated"),
             className = "col-2",
             style = Dict("color" => current_theme["text"])
         ),
@@ -21,9 +26,7 @@ navbar = html_div(
             dcc_link("Transactions", href="/transactions"),
             className = "col-2",
             style = Dict("color" => current_theme["text"])
-        ),
-        html_div([], className="col-2")
-
+        )
     ],
 
     className = "row",

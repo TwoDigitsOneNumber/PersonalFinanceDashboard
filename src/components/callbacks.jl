@@ -27,10 +27,93 @@ callback!(
 end
 
 
+# # ====================================================================
+# # overview page callbacks
+
+
+# # parallel_categories plot
+# callback!(
+#     app,
+#     Output("parallel_categories", "figure"),
+#     Input("date_range_json_data", "children")
+# ) do json_data
+
+#     # parse input json data
+#     date_range_data = DataFrames.DataFrame(JSON.parse(json_data, null=missing))
+
+#     # get income/expense categories for each income/expense transaction respectively
+#     income_categories = date_range_data[.!ismissing.(date_range_data.Income), "Category"]
+#     expense_categories = date_range_data[.!ismissing.(date_range_data.Expense), "Category"]
+
+#     # get unique income/expense categories
+#     unique_income_categories = sort!(unique(income_categories))
+#     unique_expense_categories = sort!(unique(expense_categories))
+
+#     # get the sum of the transactions for each income/expense category
+#     income_sums = []
+#     for cat in unique_income_categories
+#         bool_mask = (date_range_data.Category .== cat) .& (date_range_data.Flag .== "Income")
+#         cat_sum = round(sum(skipmissing(date_range_data[bool_mask, "Income"])), digits=2)
+#         append!(income_sums, cat_sum)
+#     end
+#     expense_sums = []
+#     for cat in unique_expense_categories
+#         bool_mask = (date_range_data.Category .== cat) .& (date_range_data.Flag .== "Expense")
+#         cat_sum = round(sum(skipmissing(date_range_data[bool_mask, "Expense"])), digits=2)
+#         append!(expense_sums, cat_sum)
+#     end
+
+
+#     # compute savings = income - expense
+#     savings = sum(income_sums) - sum(expense_sums)
+    
+#     # add savings to unique_expense_categories and expense_count
+#     append!(unique_expense_categories, ["Savings"])
+#     append!(expense_sums, savings)
+
+#     println("unique_income_categories: ", unique_income_categories)
+#     println("income_sums: ", income_sums)
+#     println("unique_expense_categories: ", unique_expense_categories)
+#     println("expense_sums: ", expense_sums)
+
+#     # return the plot
+#     return PlotlyJS.Plot(
+#         [
+#             PlotlyJS.parcats(
+#                 dimensions = [
+#                     Dict(
+#                         "label" => "Incomes",
+#                         "values" => unique_income_categories,
+#                     ),
+#                     Dict(
+#                         "label" => "Balance",
+#                         "values" => ["Total Balance"]
+#                     ),
+#                     Dict(
+#                         "label" => "Expenses",
+#                         "values" => unique_expense_categories,
+#                     ),
+#                 ]
+#             )
+#         ],
+#         PlotlyJS.Layout(
+#             title="Income and Expense Overview",
+#             plot_bgcolor = current_theme["background"],
+#             paper_bgcolor = current_theme["background"],
+#             font_size = current_theme["font_size"],
+#             titlefont_size = current_theme["titlefont_size"],
+#             font_color = current_theme["font_color"]
+#         )
+#     )
+
+#     # traces: income, budget (in the middle), expense
+
+# end
+
 
 
 # ====================================================================
-# overview callbacks
+# aggregated page callbacks
 
 
 # --------------------------------------------------------------------
@@ -87,42 +170,57 @@ callback!(
         digits=2
     )
 
+    # compute arrays of incomes/expenses over time in aggregated form
+    incomes = agg_data[agg_data.Flag .== "Income", :].Transaction_sum_sum
+    expenses = agg_data[agg_data.Flag .== "Expense", :].Transaction_sum_sum
+
+    # compute array of savings rate over time in aggregated form
+    savings_rate = (1 .- expenses ./ incomes) .* 100
+    # replace inf and -inf by missing
+    savings_rate = replace(savings_rate, Inf=>missing, -Inf=>missing)
+
     return PlotlyJS.Plot(
         # data traces
         [
             # income
             PlotlyJS.bar(
                 x = unique(agg_data[:, interval]), 
-                y = agg_data[agg_data.Flag .== "Income", :].Transaction_sum_sum, 
-                name = "Income"
+                y = incomes,
+                name = "Income",
+                marker_color = current_theme["Income"]
             ),
             # expense
             PlotlyJS.bar(
                 x = unique(agg_data[:, interval]), 
-                y = agg_data[agg_data.Flag .== "Expense", :].Transaction_sum_sum, 
-                name = "Expense"
+                y = expenses,
+                name = "Expense",
+                marker_color = current_theme["Expense"]
             ),
             # savings rate
             PlotlyJS.scatter(
                 x = unique(agg_data[:, interval]),
-                y = (1 .- agg_data[agg_data.Flag .== "Expense", :].Transaction_sum_sum ./ agg_data[agg_data.Flag .== "Income", :].Transaction_sum_sum) .* 100, 
+                y = savings_rate, 
                 name = "Savings Rate",
-                yaxis = "y2"
-            ),
-            # average savings rate
-            PlotlyJS.scatter(
-                x = unique(agg_data[:, interval]),
-                y = repeat([avg_savings_rate], length(unique(agg_data[:, interval]))),
-                name = "Average Savings Rate",
-                yaxis = "y2"
+                yaxis = "y2",
+                marker_color = current_theme["cc"]["violet"]
             )
+            # average savings rate
+            # PlotlyJS.scatter(
+            #     x = unique(agg_data[:, interval]),
+            #     y = repeat([avg_savings_rate], length(unique(agg_data[:, interval]))),
+            #     name = "Average Savings Rate",
+            #     yaxis = "y2"
+            # )
         ],
         PlotlyJS.Layout(
             title = "Total Income and Expenses",
+            yaxis_gridcolor = current_theme["grid_color"],
             yaxis_title = "CHF",
             yaxis2_title = "Savings Rate (%)",
             yaxis2_side = "right",
             yaxis2_overlaying = "y",
+            yaxis2_color = current_theme["cc"]["violet"],
+            yaxis2_gridcolor = current_theme["cc"]["violet"],
             plot_bgcolor = current_theme["background"],
             paper_bgcolor = current_theme["background"],
             font_size = current_theme["font_size"],
@@ -145,7 +243,7 @@ callback!(
     
     agg_data, interval = unpackJSONData(agg_json_data)
 
-    # if cumulative plot does not make sense show statistics on seasonality/cyclicality
+    # if cumulative plot does not make sense, then show statistics on seasonality/cyclicality
     if (interval in ["Weekday", "CalendarMonth", "CalendarWeek"])
         # parse and convert relevant column types
         date_range_data = DataFrames.DataFrame(JSON.parse(date_range_json_data, null=missing))
@@ -180,22 +278,26 @@ callback!(
                 PlotlyJS.scatter(
                     x = unique(agg_data[:, interval]),
                     y = means[means.Flag .== "Income", :].Transaction_sum_mean,
-                    name = "Average Income"
+                    name = "Average Income",
+                    marker_color = current_theme["Income"]
                 ),
                 PlotlyJS.scatter(
                     x = unique(agg_data[:, interval]),
                     y = means[means.Flag .== "Expense", :].Transaction_sum_mean,
-                    name = "Average Expense"
+                    name = "Average Expense",
+                    marker_color = current_theme["Expense"]
                 ),
                 PlotlyJS.scatter(
                     x = unique(agg_data[:, interval]),
                     y = stds[means.Flag .== "Income", :].Transaction_sum_std,
-                    name = "Std. Dev. Income"
+                    name = "Std. Dev. Income",
+                    marker_color = current_theme["cc"]["lightblue"]
                 ),
                 PlotlyJS.scatter(
                     x = unique(agg_data[:, interval]),
                     y = stds[means.Flag .== "Expense", :].Transaction_sum_std,
-                    name = "Std. Dev. Expense"
+                    name = "Std. Dev. Expense",
+                    marker_color = current_theme["cc"]["darkblue"]
                 )
             ],
             PlotlyJS.Layout(
@@ -203,6 +305,8 @@ callback!(
                 yaxis_title = "CHF",
                 plot_bgcolor = current_theme["background"],
                 paper_bgcolor = current_theme["background"],
+                yaxis_gridcolor = current_theme["grid_color"],
+                xaxis_gridcolor = current_theme["grid_color"],
                 font_size = current_theme["font_size"],
                 titlefont_size = current_theme["titlefont_size"],
                 font_color = current_theme["font_color"]
@@ -222,19 +326,22 @@ callback!(
                 PlotlyJS.scatter(
                     x = unique(agg_data[:, interval]),
                     y = cumsum(agg_data[agg_data.Flag .== "Income", :].Transaction_sum_sum),
-                    name = "Cumulative Income"
+                    name = "Cumulative Income",
+                    marker_color = current_theme["Income"]
                 ),
                 # expense
                 PlotlyJS.scatter(
                     x = unique(agg_data[:, interval]),
                     y = cumsum(agg_data[agg_data.Flag .== "Expense", :].Transaction_sum_sum),
-                    name = "Cumulative Expense"
+                    name = "Cumulative Expense",
+                    marker_color = current_theme["Expense"]
                 ),
                 # net income
                 PlotlyJS.scatter(
                     x = unique(agg_data[:, interval]),
                     y = cumsum(agg_data[agg_data.Flag .== "Income", :].Transaction_sum_sum) - cumsum(agg_data[agg_data.Flag .== "Expense", :].Transaction_sum_sum),
-                    name = "Cumulative Savings"
+                    name = "Cumulative Savings",
+                    marker_color = current_theme["cc"]["violet"]
                 )
             ],
             PlotlyJS.Layout(
@@ -242,10 +349,12 @@ callback!(
                 yaxis_title = "CHF",
                 plot_bgcolor = current_theme["background"],
                 paper_bgcolor = current_theme["background"],
+                yaxis_gridcolor = current_theme["grid_color"],
+                xaxis_gridcolor = current_theme["grid_color"],
                 font_size = current_theme["font_size"],
                 titlefont_size = current_theme["titlefont_size"],
-                font_color = current_theme["font_color"],
-                colorscale_sequential = current_theme["cycler"]
+                font_color = current_theme["font_color"]#,
+                # colorscale_sequential = current_theme["cycler"]
             )
         )
     end
@@ -281,6 +390,7 @@ callback!(
             yaxis_title = "CHF",
             plot_bgcolor = current_theme["background"],
             paper_bgcolor = current_theme["background"],
+            yaxis_gridcolor = current_theme["grid_color"],
             font_size = current_theme["font_size"],
             titlefont_size = current_theme["titlefont_size"],
             font_color = current_theme["font_color"]
@@ -362,25 +472,25 @@ callback!(
     )
 
     # repeat cycler colors enough for all transactions (else picks default colors, and ignores argument)
-    n = length(agg_data.Transaction_sum_sum)
-    k = length(current_theme[inc_exp])
-    if (k < n)
-        colors = []
-        for i in 1:(div(n, k)+1)
-            append!(colors, current_theme["cycler"])
-        end
-    else
-        colors = current_theme["cycler"]
-    end
-    colors = colors[1:n]
+    # n = length(agg_data.Transaction_sum_sum)
+    # k = length(current_theme[inc_exp])
+    # if (k < n)
+    #     colors = []
+    #     for i in 1:(div(n, k)+1)
+    #         append!(colors, current_theme["cycler"])
+    #     end
+    # else
+    #     colors = current_theme["cycler"]
+    # end
+    # colors = colors[1:n]
 
     return PlotlyJS.Plot(
         # traces
         [
             PlotlyJS.pie(
                 values = agg_data.Transaction_sum_sum,
-                labels = agg_data.Category,
-                marker_colors = colors
+                labels = agg_data.Category#,
+                # marker_colors = colors
             )
         ],
         PlotlyJS.Layout(
@@ -430,6 +540,8 @@ callback!(
             yaxis_title = "%",
             plot_bgcolor = current_theme["background"],
             paper_bgcolor = current_theme["background"],
+            yaxis_gridcolor = current_theme["grid_color"],
+            xaxis_gridcolor = current_theme["grid_color"],
             font_size = current_theme["font_size"],
             titlefont_size = current_theme["titlefont_size"],
             font_color = current_theme["font_color"]
@@ -482,6 +594,8 @@ callback!(
             title = "$inc_exp by Weekday",
             plot_bgcolor = current_theme["background"],
             paper_bgcolor = current_theme["background"],
+            yaxis_gridcolor = current_theme["grid_color"],
+            xaxis_gridcolor = current_theme["grid_color"],
             font_size = current_theme["font_size"],
             titlefont_size = current_theme["titlefont_size"],
             font_color = current_theme["font_color"]
@@ -570,6 +684,7 @@ callback!(
             title = "Histogram",
             plot_bgcolor = current_theme["background"],
             paper_bgcolor = current_theme["background"],
+            yaxis_gridcolor = current_theme["grid_color"],
             font_size = current_theme["font_size"],
             titlefont_size = current_theme["titlefont_size"],
             font_color = current_theme["font_color"]
@@ -609,6 +724,8 @@ callback!(
             hovermode = "closest",
             plot_bgcolor = current_theme["background"],
             paper_bgcolor = current_theme["background"],
+            yaxis_gridcolor = current_theme["grid_color"],
+            xaxis_gridcolor = current_theme["grid_color"],
             font_size = current_theme["font_size"],
             titlefont_size = current_theme["titlefont_size"],
             font_color = current_theme["font_color"]

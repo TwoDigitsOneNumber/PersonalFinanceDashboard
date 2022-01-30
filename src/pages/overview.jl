@@ -62,27 +62,7 @@ function getOverview()
                                 )
                             )
                         ],
-                        className = "col-5"
-                    ),
-                    html_div(
-                        [
-                            html_div(
-                                [
-                                    "Aggregate the data:",
-                                    dcc_dropdown(
-                                        id = "interval_picker",
-                                        options = interval_options,
-                                        value = interval_options[1][2],  # choose first value as default
-                                        searchable = false
-                                    )
-                                ],
-                                style = Dict(
-                                    "width" => "70%",
-                                    "margin-top" => "5px"
-                                )
-                            )
-                        ],
-                        className = "col-5"
+                        className = "col-10"
                     ),
                     html_div([], className="col-1")
 
@@ -99,77 +79,15 @@ function getOverview()
                 id="date_range_json_data",
                 style=Dict("display"=>"None")
             ),
-            html_div(
-                id="aggregated_json_data",
-                style=Dict("display"=>"None")
-            ),
 
 
-            # summary/overview graphs
+            # overview graph, parallel_categories plott
             html_div(
                 [
-                    html_div([dcc_graph(id="bar_income_expense")], className="col-6"),
-                    html_div([dcc_graph(id="cumulative_income_expense")], className="col-6")
+                    html_div([dcc_graph(id="parallel_categories")], className="col-10"),
                 ],
                 className="row"
             ),
-
-
-            # income/expense overview graphs
-
-            # income/expense picker dropdown
-            html_div(
-                [
-                    html_div([], className="col-1"),
-                    html_div(
-                        [
-                            dcc_dropdown(
-                                id = "income_expense_overview_picker",
-                                options = [(label=i, value=i) for i in ["Income", "Expense"]],
-                                value = "Income",
-                                searchable = false
-                            ),
-                        ],
-                        className="col-10",
-                        style = Dict(
-                            "width" => "70%"
-                        )
-                    ),
-                    html_div([], className="col-1")
-                ],
-                className="row",
-                style = Dict("backgroundColor"=>current_theme["accent"])
-            ),
-
-
-            html_div(
-                [
-                    html_div([dcc_graph(id="bar_category_chart")], className="col-8"),
-                    html_div([dcc_graph(id="pie_chart")], className="col-4")
-                ],
-                className="row"
-            ),
-
-
-            # row with long column on the right
-            html_div(
-                [
-                    html_div(
-                        [
-                            html_div([dcc_graph(id="filled_area_plot")], className="col-12"),
-                            html_div([dcc_graph(id="weekday_heatmap")], className="col-12")
-                        ],
-                        className="col-8"
-                    ),
-                    html_div(
-                        [
-                            html_div(id="average_per_category")
-                        ],
-                        className="col-4"
-                    )
-                ],
-                className="row"
-            )
         ]
     )
 

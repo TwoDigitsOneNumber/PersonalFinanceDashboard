@@ -62,6 +62,9 @@ function cumsumIgnoreMissing(array::AbstractArray, type_)
 end
 
 
+"""
+Transform a DataFrame that was generated using JSON.parse(data) to have propper column types when aggregating by some time interval.
+"""
 function convertColumnTypes(df::DataFrames.DataFrame, interval::AbstractString)
 
     # only select columns that are in the dataframe
@@ -72,9 +75,11 @@ function convertColumnTypes(df::DataFrames.DataFrame, interval::AbstractString)
         end
     end
         
-
+    # convert columns to proper types
     if (interval == "Hour") | (interval == "Year")
-        df[!, interval] = [string(i) for i in df[!, interval]]
+        # convert to a string of an int (to avoid having years such as 2000.5 or 2000.0 in the plots)
+        # if its already a string, then leave it as is
+        df[!, interval] = [typeof(i) == Float64 ? string(trunc(Int, i)) : i for i in df[!, interval]]
     elseif (interval == "Date")
         df[!, interval] = [Dates.Date(i) for i in df[!, interval]]
     elseif (interval == "Weekday")
