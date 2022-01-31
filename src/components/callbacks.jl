@@ -221,6 +221,7 @@ callback!(
             yaxis2_overlaying = "y",
             yaxis2_color = current_theme["cc"]["violet"],
             yaxis2_gridcolor = current_theme["cc"]["violet"],
+            yaxis2_zerolinecolor = current_theme["cc"]["violet"],
             plot_bgcolor = current_theme["background"],
             paper_bgcolor = current_theme["background"],
             font_size = current_theme["font_size"],
@@ -525,7 +526,7 @@ callback!(
     filled_area_traces = [
         PlotlyJS.scatter(
             x = unique(agg_data[:, interval]),
-            y = agg_data[agg_data.Category .== category, "Transaction_sum"], 
+            y = round.(agg_data[agg_data.Category .== category, "Transaction_sum"], digits=2),
             name = category, 
             stackgroup = "one", 
             groupnorm = "percent"
@@ -544,7 +545,8 @@ callback!(
             xaxis_gridcolor = current_theme["grid_color"],
             font_size = current_theme["font_size"],
             titlefont_size = current_theme["titlefont_size"],
-            font_color = current_theme["font_color"]
+            font_color = current_theme["font_color"],
+            hovermode = "x unified"  # show all values with the same x-axis value
         )
     )
 end

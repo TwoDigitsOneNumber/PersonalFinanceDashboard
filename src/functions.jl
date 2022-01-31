@@ -62,10 +62,10 @@ function cumsumIgnoreMissing(array::AbstractArray, type_)
 end
 
 
-"""
-Transform a DataFrame that was generated using JSON.parse(data) to have propper column types when aggregating by some time interval.
-"""
 function convertColumnTypes(df::DataFrames.DataFrame, interval::AbstractString)
+    """
+    Transform a DataFrame that was generated using JSON.parse(data) to have propper column types when aggregating by some time interval.
+    """
 
     # only select columns that are in the dataframe
     string_cols = []

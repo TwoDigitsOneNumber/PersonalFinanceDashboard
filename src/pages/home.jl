@@ -23,13 +23,13 @@ function getHome()
             html_div(
                 [
                     # todo: limit max width of readme text
-                    html_div([], className="col-2"),
+                    html_div([], className="col-3"),
                     html_div(
                         [dcc_markdown(readme)], 
                         style = Dict("text-align"=>"left"),
-                        className = "col-8"
+                        className = "col-6"
                     ),
-                    html_div([], className="col-2")
+                    html_div([], className="col-3")
                 ],
                 className = "row"
             )

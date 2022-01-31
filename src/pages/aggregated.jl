@@ -41,12 +41,12 @@ function getAggregated()
             html_div(
                 [
 
-                    html_div([], className="col-1"),  # blank cols left
+                    html_div([], className="col-3"),  # blank cols left
                     html_div(
                         [
                             html_div(
                                 [
-                                    "Select a date range:",
+                                    "Select a date range: ",
                                     dcc_datepickerrange(
                                         id = "date_range_picker",
                                         start_date = clean_data.Date[begin],
@@ -63,7 +63,7 @@ function getAggregated()
                                 )
                             )
                         ],
-                        className = "col-5"
+                        className = "col-3"
                     ),
                     html_div(
                         [
@@ -84,9 +84,9 @@ function getAggregated()
                                 )
                             )
                         ],
-                        className = "col-5"
+                        className = "col-3"
                     ),
-                    html_div([], className="col-1")
+                    html_div([], className="col-3")
 
                 ],
                 className = "row sticky-top",  # to stick on the top when scrolling down

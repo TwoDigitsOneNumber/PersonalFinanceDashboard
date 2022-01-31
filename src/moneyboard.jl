@@ -3,17 +3,43 @@
 # todo: make sure data folder is created if it doesn't exist already
 # todo: take file name and path as argument to the script
 
-
 using DataFrames
 import CSV
 import Dates
 import PlotlyJS
+using ArgParse
+
+# define command line arguments
+function parse_commandline()
+    s = ArgParseSettings()
+
+    @add_arg_table! s begin
+
+        "--in"
+        help = "input file name (incl. file extension)."
+        arg_type = String
+        required = true
+
+        "--out"
+        help = "output file name (incl. file extension)."
+        arg_type = String
+        required = true
+    end
+
+    return parse_args(s)
+end
+
+# handle command line arguments
+parsed_args = parse_commandline()
+file_name_in = parsed_args["in"]
+file_name_out = parsed_args["out"]
+
 
 # include custom functions
 include("functions.jl")
 
 # read dataframe
-transactions = DataFrame(CSV.File("../data/Moneyboard.csv"; ignoreemptyrows=true, comment="#"))
+transactions = DataFrame(CSV.File("../data/$file_name_in"; ignoreemptyrows=true, comment="#"))
 
 
 
@@ -120,5 +146,6 @@ DataFrames.sort!(transactions, [:Date, :Time])
 # --------------------------------------------------------------------
 # save clean dataframe
 
-CSV.write("../data/preprocessed_data.csv", transactions)
+CSV.write("../data/$file_name_out", transactions)
+println("Data preprocessing done!")
 

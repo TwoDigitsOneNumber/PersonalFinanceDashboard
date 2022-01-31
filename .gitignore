@@ -1,2 +1,3 @@
 /data/*
-!/data/demo_fakedata.csv
+!/data/demo_data.csv
+!/data/preprocessed_demo_data.csv

@@ -23,12 +23,12 @@ function getTransactions()
             # filter row
             html_div(
                 [
-                    html_div([], className="col-1"),  # blank cols left
+                    html_div([], className="col-3"),  # blank cols left
                     html_div(
                         [
                             html_div(
                                 [
-                                    "Select a date range:",
+                                    "Select a date range: ",
                                     dcc_datepickerrange(
                                         id = "date_range_picker",
                                         start_date = clean_data.Date[begin],
@@ -45,7 +45,7 @@ function getTransactions()
                                 )
                             )
                         ],
-                        className = "col-5"
+                        className = "col-3"
                     ),
                     html_div(
                         [
@@ -70,9 +70,9 @@ function getTransactions()
                             )
 
                         ],
-                        className = "col-5"
+                        className = "col-3"
                     ),
-                    html_div([], className="col-1")  # blank cols left
+                    html_div([], className="col-3")  # blank cols left
                 ],
                 className = "row sticky-top",
                 style = Dict(

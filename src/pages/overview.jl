@@ -41,12 +41,12 @@ function getOverview()
             html_div(
                 [
 
-                    html_div([], className="col-1"),  # blank cols left
+                    html_div([], className="col-3"),  # blank cols left
                     html_div(
                         [
                             html_div(
                                 [
-                                    "Select a date range:",
+                                    "Select a date range: ",
                                     dcc_datepickerrange(
                                         id = "date_range_picker",
                                         start_date = clean_data.Date[begin],
@@ -64,7 +64,7 @@ function getOverview()
                         ],
                         className = "col-10"
                     ),
-                    html_div([], className="col-1")
+                    html_div([], className="col-3")
 
                 ],
                 className = "row sticky-top",  # to stick on the top when scrolling down
