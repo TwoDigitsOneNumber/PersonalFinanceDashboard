@@ -24,7 +24,7 @@ cc["blue"] = "#"*Colors.hex(Colors.RGBA(23/255, 190/255, 207/255, 1), :RRGGBB)
 cc["darkblue"] = "#"*Colors.hex(Colors.RGBA(31/255, 119/255, 180/255, 1), :RRGGBB)  # dark blue
 cc["darkdarkblue"] = "#"*Colors.hex(Colors.RGBA(5/255, 35/255, 60/255, 1), :RRGGBB)
 
-cc["violet"] = "#"*Colors.hex(Colors.RGBA(171/255, 99/255, 250/255, 1), :RRGGBB)
+cc["violet"] = "#"*Colors.hex(Colors.RGBA(99/255, 110/255, 250/255, 1), :RRGGBB)
 cc["red"] = "#"*Colors.hex(Colors.RGBA(239/255, 85/255, 59/255, 1), :RRGGBB)
 cc["orange"]  = "#"*Colors.hex(Colors.RGBA(255/255, 161/255, 90/255, 1), :RRGGBB)
 cc["yellow"] = "#"*Colors.hex(Colors.RGBA(234/255, 234/255, 0/255, 1), :RRGGBB)

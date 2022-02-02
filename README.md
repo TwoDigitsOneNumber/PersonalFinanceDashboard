@@ -13,12 +13,12 @@ instantiate
 ```
 
 
-In order to __run__ the dashboard, run the following steps in order. If you wish to run it using artificial demo data, you can skip steps 1-3.
+In order to __run__ the dashboard, run the following steps in order. If you wish to run it using artificial demo data, you can skip steps 1-3. To use different ports or filenames (e.g. to keep multiple files for different accounts in the same data directory) you can run the file `app.jl` in the root directory. This file serves as the entry point to the app. However, for simplicity's sake i provided small bash scripts which take care of most things and only the steps below need to be followed.
 1. Export the __Transactions__ data from the Moneyboard mobile app as __csv__ and select the desired period.  
 2. Name the csv file "Moneyboard.csv" and place it inside the "data" folder.  
 3. In the terminal navigate to the root directory of the repository, then run the file `preprocess_data.sh`. This step will preprocess the data in a way such that the app can later handle it nicely. After this process is finished you will be able to see a file called "preprocessed_data.csv" inside the "data" folder.  
 4. If you haven't already in step 3, then navigate to the root directory of the repository.  
-5. Run the `run.sh` file in the terminal to start the application. If the process is successful, a message like `[ Info: Listening on: 0.0.0.0:8050` will appear in the terminal. Open your browser and enter `localhost:8050` into the address bar of firefox, or `0.0.0.0:8050` on other browsers. Initial loading of the pages might take some time, but subsequent actions (like adjusting filters or plots) will be a lot quicker.
+5. Run the `run.sh` file in the terminal to start the application. If the process is successful, a message like `[ Info: Listening on: 0.0.0.0:8050` will appear in the terminal. Open your browser and enter `0.0.0.0:8050` into your browser address bar. Initial loading of the pages might take some time, but subsequent actions (like adjusting filters or plots) will be a lot quicker.
 
 
 ## Navigation in the Dashboard

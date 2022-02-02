@@ -1,4 +1,3 @@
 #!/bin/bash
 
-cd src
-julia --project=.. index.jl --file_name=preprocessed_data.csv
+julia --project=. app.jl --file_name=preprocessed_data.csv 8050

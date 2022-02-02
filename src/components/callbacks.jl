@@ -163,21 +163,23 @@ callback!(
     agg_data = DataFrames.combine(DataFrames.groupby(agg_data, [interval, "Flag"]), :Transaction_sum=>sum)
     convertColumnTypes(agg_data, interval)
 
-    avg_savings_rate = round(
-        mean(
-            (1 - sum(agg_data[agg_data.Flag .== "Expense", :].Transaction_sum_sum) / sum(agg_data[agg_data.Flag .== "Income", :].Transaction_sum_sum)) .* 100
-        ),
-        digits=2
-    )
+    # avg_savings_rate = round(
+    #     mean(
+    #         (1 - sum(agg_data[agg_data.Flag .== "Expense", :].Transaction_sum_sum) / sum(agg_data[agg_data.Flag .== "Income", :].Transaction_sum_sum)) .* 100
+    #     ),
+    #     digits=2
+    # )
 
     # compute arrays of incomes/expenses over time in aggregated form
     incomes = agg_data[agg_data.Flag .== "Income", :].Transaction_sum_sum
     expenses = agg_data[agg_data.Flag .== "Expense", :].Transaction_sum_sum
 
     # compute array of savings rate over time in aggregated form
-    savings_rate = (1 .- expenses ./ incomes) .* 100
+    savings_rate = round.((1 .- expenses ./ incomes) .* 100, digits=2)
     # replace inf and -inf by missing
     savings_rate = replace(savings_rate, Inf=>missing, -Inf=>missing, NaN=>missing)
+
+    savings_rate_color = current_theme["cc"]["violet"]
 
     return PlotlyJS.Plot(
         # data traces
@@ -202,7 +204,8 @@ callback!(
                 y = savings_rate, 
                 name = "Savings Rate",
                 yaxis = "y2",
-                marker_color = current_theme["cc"]["violet"]
+                marker_color = savings_rate_color,
+                hovertemplate = "%{y:.2f}"
             )
             # average savings rate
             # PlotlyJS.scatter(
@@ -219,14 +222,15 @@ callback!(
             yaxis2_title = "Savings Rate (%)",
             yaxis2_side = "right",
             yaxis2_overlaying = "y",
-            yaxis2_color = current_theme["cc"]["violet"],
-            yaxis2_gridcolor = current_theme["cc"]["violet"],
-            yaxis2_zerolinecolor = current_theme["cc"]["violet"],
+            yaxis2_color = savings_rate_color,
+            yaxis2_gridcolor = savings_rate_color,
+            yaxis2_zerolinecolor = savings_rate_color,
             plot_bgcolor = current_theme["background"],
             paper_bgcolor = current_theme["background"],
             font_size = current_theme["font_size"],
             titlefont_size = current_theme["titlefont_size"],
-            font_color = current_theme["font_color"]
+            font_color = current_theme["font_color"],
+            hovermode = "x"
         )
     )
 end
@@ -274,28 +278,30 @@ callback!(
             :Transaction_sum=>std
         )
 
+        time = unique(agg_data[:, interval])
+
         return PlotlyJS.Plot(
             [
                 PlotlyJS.scatter(
-                    x = unique(agg_data[:, interval]),
+                    x = time,
                     y = means[means.Flag .== "Income", :].Transaction_sum_mean,
                     name = "Average Income",
                     marker_color = current_theme["Income"]
                 ),
                 PlotlyJS.scatter(
-                    x = unique(agg_data[:, interval]),
+                    x = time,
                     y = means[means.Flag .== "Expense", :].Transaction_sum_mean,
                     name = "Average Expense",
                     marker_color = current_theme["Expense"]
                 ),
                 PlotlyJS.scatter(
-                    x = unique(agg_data[:, interval]),
+                    x = time,
                     y = stds[means.Flag .== "Income", :].Transaction_sum_std,
                     name = "Std. Dev. Income",
                     marker_color = current_theme["cc"]["lightblue"]
                 ),
                 PlotlyJS.scatter(
-                    x = unique(agg_data[:, interval]),
+                    x = time,
                     y = stds[means.Flag .== "Expense", :].Transaction_sum_std,
                     name = "Std. Dev. Expense",
                     marker_color = current_theme["cc"]["darkblue"]
@@ -310,7 +316,8 @@ callback!(
                 xaxis_gridcolor = current_theme["grid_color"],
                 font_size = current_theme["font_size"],
                 titlefont_size = current_theme["titlefont_size"],
-                font_color = current_theme["font_color"]
+                font_color = current_theme["font_color"],
+                hovermode = "x unified"
             )
         )
     
@@ -320,29 +327,39 @@ callback!(
         agg_data = DataFrames.combine(DataFrames.groupby(agg_data, [interval, "Flag"]), :Transaction_sum=>sum)
         convertColumnTypes(agg_data, interval)
 
+        time = unique(agg_data[:, interval])
+        cum_income = cumsum(agg_data[agg_data.Flag .== "Income", :].Transaction_sum_sum)
+        cum_expense =cumsum(agg_data[agg_data.Flag .== "Expense", :].Transaction_sum_sum) 
+        cum_savings = cum_income - cum_expense
+        cum_savings_rate = (1 .- cum_expense ./ cum_income) .* 100
+
         return PlotlyJS.Plot(
             # traces
             [
                 # income
                 PlotlyJS.scatter(
-                    x = unique(agg_data[:, interval]),
-                    y = cumsum(agg_data[agg_data.Flag .== "Income", :].Transaction_sum_sum),
+                    x = time,
+                    y = cum_income,
                     name = "Cumulative Income",
-                    marker_color = current_theme["Income"]
+                    marker_color = current_theme["Income"],
+                    hovertemplate = "%{y:.2f} CHF"
                 ),
                 # expense
                 PlotlyJS.scatter(
-                    x = unique(agg_data[:, interval]),
-                    y = cumsum(agg_data[agg_data.Flag .== "Expense", :].Transaction_sum_sum),
+                    x = time,
+                    y = cum_expense,
                     name = "Cumulative Expense",
-                    marker_color = current_theme["Expense"]
+                    marker_color = current_theme["Expense"],
+                    hovertemplate = "%{y:.2f} CHF"
                 ),
-                # net income
+                # cumulative savings / net income
                 PlotlyJS.scatter(
-                    x = unique(agg_data[:, interval]),
-                    y = cumsum(agg_data[agg_data.Flag .== "Income", :].Transaction_sum_sum) - cumsum(agg_data[agg_data.Flag .== "Expense", :].Transaction_sum_sum),
+                    x = time,
+                    y = cum_savings,
                     name = "Cumulative Savings",
-                    marker_color = current_theme["cc"]["violet"]
+                    marker_color = current_theme["cc"]["violet"],
+                    hovertemplate = "%{y:.2f} CHF<br>(Cumulative Savings Rate: %{text} %)",
+                    text = ["$(round(i, digits=2))" for i in cum_savings_rate],
                 )
             ],
             PlotlyJS.Layout(
@@ -354,8 +371,8 @@ callback!(
                 xaxis_gridcolor = current_theme["grid_color"],
                 font_size = current_theme["font_size"],
                 titlefont_size = current_theme["titlefont_size"],
-                font_color = current_theme["font_color"]#,
-                # colorscale_sequential = current_theme["cycler"]
+                font_color = current_theme["font_color"],
+                hovermode = "x unified"
             )
         )
     end
@@ -394,7 +411,8 @@ callback!(
             yaxis_gridcolor = current_theme["grid_color"],
             font_size = current_theme["font_size"],
             titlefont_size = current_theme["titlefont_size"],
-            font_color = current_theme["font_color"]
+            font_color = current_theme["font_color"],
+            hovermode = "x"
         )
     )
 end
@@ -419,14 +437,7 @@ callback!(
     means[!, "Transaction_sum_mean"] = round.(means[!, "Transaction_sum_mean"], digits=2)
     DataFrames.sort!(means, "Category")
 
-    if (interval == "Weekday")
-        interval = "Day"
-    elseif (interval == "CalendarMonth" || interval == "YearMonth")
-        interval = "Month"
-    elseif (interval == "CalendarWeek" || interval == "YearWeek")
-        interval = "Week"
-    end
-
+    interval = readable_interval_names(interval)
 
     return html_div([
         html_h5("Average $inc_exp per $interval by Category", style=Dict("text-align"=>"center")),
@@ -529,7 +540,8 @@ callback!(
             y = round.(agg_data[agg_data.Category .== category, "Transaction_sum"], digits=2),
             name = category, 
             stackgroup = "one", 
-            groupnorm = "percent"
+            groupnorm = "percent",
+            hovertemplate = "%{y:.2f} %",
         ) for category in unique(skipmissing(agg_data.Category))
     ]
 
@@ -582,14 +594,16 @@ callback!(
     levels!(agg_data[!, "Weekday"], ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
     DataFrames.sort!(agg_data, ["Weekday"])
 
+    interval_readable = readable_interval_names(interval)
+
     return PlotlyJS.Plot(
         [
             PlotlyJS.heatmap(
                 x = agg_data[agg_data.Flag .== inc_exp, interval],
                 y = agg_data[agg_data.Flag .== inc_exp, "Weekday"],
                 z = agg_data[agg_data.Flag .== inc_exp, "Transaction_sum"],
-                colorscale = [[0, current_theme["background"]], [1, current_theme[inc_exp]]]
-
+                colorscale = [[0, current_theme["background"]], [1, current_theme[inc_exp]]],
+                hovertemplate = "$interval_readable : %{x}<br>Weekday : %{y}<br>$inc_exp : %{z}<extra></extra>",
             )
         ],
         PlotlyJS.Layout(

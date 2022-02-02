@@ -6,11 +6,8 @@ import JSON
 import Dates
 
 
-
-include("../app.jl")
 include("../functions.jl")
 include("../styles.jl")
-# PlotlyJS.use_style!(current_theme["plot_style"])  # deprecated
 
 
 

@@ -2,11 +2,10 @@ using Dash
 import DataFrames
 import CSV
 using CategoricalArrays
-using ArgParse
 
 println("Starting program...")
+app = dash(suppress_callback_exceptions=true)
 
-include("app.jl")
 include("components/callbacks.jl")
 include("pages/404.jl")
 include("pages/home.jl")
@@ -19,23 +18,10 @@ include("components/navbar.jl")
 include("components/callbacks.jl")
 
 
-# define command line arguments
-function parse_commandline()
-    s = ArgParseSettings()
-    
-    @add_arg_table! s begin
-
-        "--file_name"
-        help = "input file name of the preprocessed csv file (incl. file extension). Type \"demo\" to use the demo file."
-        arg_type = String
-        required = true
-    end
-    
-    return parse_args(s)
-end
-
-# handle command line arguments
-file_name = parse_commandline()["file_name"]
+# handle ARGS from app.jl
+file_name = ARGS[1]
+debug = ARGS[2]
+port = parse(Int, ARGS[3])
 
 
 # -----------------------------------------------------------------------------
@@ -97,10 +83,5 @@ end
 
 
 println("Starting server...")
-if file_name == "demo"
-    debug = false
-else
-    debug = true
-end
 
-run_server(app, "0.0.0.0", debug=debug)
+run_server(app, "0.0.0.0", port, debug=debug)

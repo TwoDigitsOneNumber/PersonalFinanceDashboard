@@ -1,4 +1,3 @@
 #!/bin/bash
 
-cd src
-julia --project=.. index.jl --file_name=demo
+julia --project=. app.jl --file_name=demo 8050

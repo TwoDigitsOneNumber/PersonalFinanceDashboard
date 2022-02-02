@@ -7,7 +7,6 @@ import Dates
 
 
 
-include("../app.jl")
 include("../functions.jl")
 include("../styles.jl")
 

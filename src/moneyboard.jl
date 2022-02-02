@@ -1,7 +1,6 @@
 # this script cleans the data and saves it
 
 # todo: make sure data folder is created if it doesn't exist already
-# todo: take file name and path as argument to the script
 
 using DataFrames
 import CSV

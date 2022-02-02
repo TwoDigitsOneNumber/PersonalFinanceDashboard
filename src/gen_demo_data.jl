@@ -238,7 +238,7 @@ single_transact_5 = DataFrame(
     "Category" => ["Holiday"],
     "Name" => ["Holiday Trip Canada"],
     "Notes" => [missing],
-    "Expense" => [2799],
+    "Expense" => [3499],
     "Income" => [missing]
 )
 
@@ -255,7 +255,7 @@ single_transact_6 = DataFrame(
 single_transact_7 = DataFrame(
     "Date" => [date_range[1]+Day(nr_days_per_year*2+100)],
     "Time" => [Time(12)],
-    "Category" => ["Holiday"],
+    "Category" => ["Technology"],
     "Name" => ["New Playstation"],
     "Notes" => [missing],
     "Expense" => [900],

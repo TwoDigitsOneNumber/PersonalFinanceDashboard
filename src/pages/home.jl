@@ -22,7 +22,6 @@ function getHome()
         [
             html_div(
                 [
-                    # todo: limit max width of readme text
                     html_div([], className="col-3"),
                     html_div(
                         [dcc_markdown(readme)], 

@@ -131,3 +131,18 @@ function unpackJSONData(json_data::AbstractString)
     return (agg_data, interval)
 end
 
+
+"""
+Convert interval names (from dataframe column names )to a more easily readable word. E.g. "YearMonth" to "Month".
+"""
+function readable_interval_names(interval)
+
+    if (interval == "Weekday")
+        interval = "Day"
+    elseif (interval == "CalendarMonth" || interval == "YearMonth")
+        interval = "Month"
+    elseif (interval == "CalendarWeek" || interval == "YearWeek")
+        interval = "Week"
+    end
+    return interval
+end
