@@ -11,7 +11,7 @@ function parse_commandline()
         "--file_name"
         help = "input file name of the preprocessed csv file (incl. file extension). Type \"demo\" to use the demo file."
         arg_type = String
-        required = true
+        default = "demo"
 
         "--debug"
         help = "debug mode (round circle with info in bottom ritht corner of the page)"
