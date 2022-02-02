@@ -28,7 +28,7 @@ readme = readme[start:end]
 if ARGS[1] == "demo"
     demo_welcome_text = """
     ## Welcome to this Dashboard Demo\n
-    This dashboard provides a usefull way to monitor ones personal finances. This demo version is intended to demonstrate the functionality and versatility of the dashboard. See the sections below for some tips on how to navigate the dashboard and how to interact with the plots. We display the full functionality of the dashboard on some artificial demo data. For users who are interested to try the dashboard with their own data (collected through the Moneyboard mobile app (not affiliated)), please clone/download the source code from this [GitHub repository](https://github.com/TwoDigitsOneNumber/PersonalFinanceDashboard).\n\n
+    This dashboard provides a usefull way to monitor and analyze ones personal finances to gain insigts into ones income streams and spending habits. This demo version is intended to demonstrate the functionality and versatility of the dashboard. If you would like some guidance on how to navigate the dashboard and how to interact with the plots, please see the sections below for some tips. We encurage the user to explore the dashboard and its features.\n\nWe display the full functionality of the dashboard on some artificial demo data. For users who are interested to try or use the dashboard with their own personal data (collected through the Moneyboard mobile app (not affiliated)), please clone/download the source code from this [GitHub repository](https://github.com/TwoDigitsOneNumber/PersonalFinanceDashboard). On the repository page we provide instructions on how to run the dashboard on your personal machine.\n\n
     """
     readme = demo_welcome_text * readme
 end

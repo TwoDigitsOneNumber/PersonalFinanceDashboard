@@ -3,7 +3,7 @@
 
 ## Instructions
 
-__Before running__ the app on your local machine, make sure to instantiate the proper environment specified in the `Project.toml` file. You can do so as follows:
+__Before running__ the app on your local machine, make sure to instantiate the proper environment specified in the `Project.toml` file (Note, we assume that you have some version of the Julia programming language installed and can run files from the terminal). You can do so as follows:
 1. `cd` into the repository.
 2. Start a julia REPL session by typing `julia` and press `Enter`.
 3. Enter the package manager by typing `]` and run the following commands: 
