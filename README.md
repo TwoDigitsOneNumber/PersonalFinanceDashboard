@@ -44,3 +44,19 @@ In the top right of most plots (above the legend) is a bar of tools to zoom in/o
 - The input specifying the date range has precedence over the input for the interval (i.e. "Yearly", "Monthly", ...). This means that for example if you choose \"2020-01-15\" and \"2020-08-15\" and \"Monthly\", the first and last month will not cover the full data available if the appropriate start and end of the month would have been chosen. This has two advantages. First, the user has a way to clearly exclude certain days. Second, it keeps the code simple and intuitive.
 - The dataframe that is subset to only include the specified date range is saved as a JSON string in the users browser. This dataframe is then parsed and aggregated to match the specified interval and saved again in the users browser. This allows for states to be shared across multiple plots without it affecting other users (more information [here](https://dash-julia.plotly.com/sharing-data-between-callbacks)). This has the downside that the writing and parsing of the dataframes takes some time, but it keeps the code easily extendable to add more plots, as it eliminates the need to repeatedly perform the same operations for every plot, and it also reduces the amount of grouping operations that need to be done.
 - The whole project is designed to follow the Model-View-Controller (MVC) pattern of object oriented programming as much as possible/necessary. The individual html pages (src/pages) are the views. The `index.jl` file is the controller. The `callbacks.jl` file performs most of the heavy lifting upon calls by the controller, it is therefore the model.
+
+
+## Deployment on a Heroku Server
+
+For demo purposes I deployed the dashboard app on a heroku server so that everyone can explore the app without any installation of Julia necessary. The app can be explored under this [link](https://personal-finance-dash-board.herokuapp.com). 
+
+Note however that the app is intended to be run locally on your own hardware if you intend to analyze your own financial data (collected through the Moneyboard mobile app (not affiliated)). For installation instructions see the Instructions section above.
+
+### Issues with Deployment on Heroku
+Unfortunately, at the time of this writing (February 3., 2022), Julia and Heroku don't get along very well. This shows in 
+- a long initial startup of the pages (as Julia precompiles the packages and functions). However, subsequent changes to the plots (e.g. using the filters) run relatively fast.
+- a high memory usage, which causes the heroku server to kill and restart the app from time to time upon heavy usage.
+
+These issues are well known by now, for example see
+- https://gist.github.com/fonsp/38965d7595a5d1060e27d6ca2084778d#precompilation
+- https://www.youtube.com/watch?v=p--assaV64g
