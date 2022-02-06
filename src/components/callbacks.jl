@@ -181,6 +181,7 @@ callback!(
 
     savings_rate_color = current_theme["cc"]["violet"]
 
+
     return PlotlyJS.Plot(
         # data traces
         [
@@ -216,7 +217,7 @@ callback!(
             # )
         ],
         PlotlyJS.Layout(
-            title = "Total Income and Expenses",
+            title = "Total Income and Expenses<br><sup>Total Income and Expense (left axis) and Savings Rate (right axis) per $(readable_interval_names(interval)) over time.</sup>",
             yaxis_gridcolor = current_theme["grid_color"],
             yaxis_title = "CHF",
             yaxis2_title = "Savings Rate (%)",
@@ -286,29 +287,33 @@ callback!(
                     x = time,
                     y = means[means.Flag .== "Income", :].Transaction_sum_mean,
                     name = "Average Income",
-                    marker_color = current_theme["Income"]
+                    marker_color = current_theme["Income"],
+                    hovertemplate = "%{y:.2f} CHF",
                 ),
                 PlotlyJS.scatter(
                     x = time,
                     y = means[means.Flag .== "Expense", :].Transaction_sum_mean,
                     name = "Average Expense",
-                    marker_color = current_theme["Expense"]
+                    marker_color = current_theme["Expense"],
+                    hovertemplate = "%{y:.2f} CHF",
                 ),
                 PlotlyJS.scatter(
                     x = time,
                     y = stds[means.Flag .== "Income", :].Transaction_sum_std,
                     name = "Std. Dev. Income",
-                    marker_color = current_theme["cc"]["lightblue"]
+                    marker_color = current_theme["cc"]["lightblue"],
+                    hovertemplate = "%{y:.2f} CHF",
                 ),
                 PlotlyJS.scatter(
                     x = time,
                     y = stds[means.Flag .== "Expense", :].Transaction_sum_std,
                     name = "Std. Dev. Expense",
-                    marker_color = current_theme["cc"]["darkblue"]
+                    marker_color = current_theme["cc"]["darkblue"],
+                    hovertemplate = "%{y:.2f} CHF",
                 )
             ],
             PlotlyJS.Layout(
-                title = "Seasonality/Cyclicality",
+                title = "Seasonality/Cyclicality<br><sup>Average Income and Expense with respective standard deviation per $(readable_interval_names(interval)).</sup>",
                 yaxis_title = "CHF",
                 plot_bgcolor = current_theme["background"],
                 paper_bgcolor = current_theme["background"],
@@ -363,7 +368,7 @@ callback!(
                 )
             ],
             PlotlyJS.Layout(
-                title = "Cumulative Income and Expenses",
+                title = "Cumulative Income and Expenses<br><sup>Cumulative Income, Expense and Savings per $(readable_interval_names(interval)).</sup>",
                 yaxis_title = "CHF",
                 plot_bgcolor = current_theme["background"],
                 paper_bgcolor = current_theme["background"],
@@ -404,7 +409,7 @@ callback!(
     return PlotlyJS.Plot(
         bar_traces,
         PlotlyJS.Layout(
-            title = "$inc_exp by Category over Time (absolute)",
+            title = "Total $inc_exp by Category over Time<br><sup>Total $inc_exp by category per $(readable_interval_names(interval))</sup>",
             yaxis_title = "CHF",
             plot_bgcolor = current_theme["background"],
             paper_bgcolor = current_theme["background"],
@@ -431,16 +436,20 @@ callback!(
     agg_data = DataFrames.dropmissing(agg_data[agg_data.Flag .== inc_exp, :], [:Category])
     agg_data = convertColumnTypes(agg_data, interval)
 
+    # compute means per category
     means = DataFrames.combine(DataFrames.groupby(agg_data, [:Category]), :Transaction_sum=>mean)
     cols = ["Category", "Transaction_sum_mean"]
     rows = 1:DataFrames.nrow(means)
+    # round means to 2 digits
     means[!, "Transaction_sum_mean"] = round.(means[!, "Transaction_sum_mean"], digits=2)
-    DataFrames.sort!(means, "Category")
+    DataFrames.sort!(means, "Category")  # sort alphabetically by category
 
-    interval = readable_interval_names(interval)
+    title = "Average $inc_exp per $(readable_interval_names(interval)) by Category"
+    subtitle = "Total $inc_exp divided by number of $(readable_interval_names(interval))s."
 
     return html_div([
-        html_h5("Average $inc_exp per $interval by Category", style=Dict("text-align"=>"center")),
+        html_h5(title), #style=Dict("text-align"=>"center")),
+        html_sub(subtitle),
         html_table(
             [
                 html_thead([html_tr([html_th("Category"), html_th("Average $inc_exp")])]),
@@ -501,12 +510,12 @@ callback!(
         [
             PlotlyJS.pie(
                 values = agg_data.Transaction_sum_sum,
-                labels = agg_data.Category#,
-                # marker_colors = colors
+                labels = agg_data.Category,
+                hovertemplate = "%{label}<br>%{value:.2f} CHF<br>%{percent}<extra></extra>",
             )
         ],
         PlotlyJS.Layout(
-            title="Total $inc_exp by Category",
+            title="Total $inc_exp by Category<br><sup>Total $inc_exp by Category the whole period.</sup>",
             plot_bgcolor = current_theme["background"],
             paper_bgcolor = current_theme["background"],
             font_size = current_theme["font_size"],
@@ -549,7 +558,7 @@ callback!(
         # traces
         filled_area_traces,
         PlotlyJS.Layout(
-            title = "$inc_exp by Category over Time (in %)",
+            title = "$inc_exp by Category over Time (in %)<br><sup>Shows the percentages for each category out of the total $inc_exp per $(readable_interval_names(interval)).</sup>",
             yaxis_title = "%",
             plot_bgcolor = current_theme["background"],
             paper_bgcolor = current_theme["background"],
@@ -603,11 +612,11 @@ callback!(
                 y = agg_data[agg_data.Flag .== inc_exp, "Weekday"],
                 z = agg_data[agg_data.Flag .== inc_exp, "Transaction_sum"],
                 colorscale = [[0, current_theme["background"]], [1, current_theme[inc_exp]]],
-                hovertemplate = "$interval_readable : %{x}<br>Weekday : %{y}<br>$inc_exp : %{z}<extra></extra>",
+                hovertemplate = "$interval_readable : %{x}<br>Weekday : %{y}<br>$inc_exp : %{z} CHF<extra></extra>",
             )
         ],
         PlotlyJS.Layout(
-            title = "$inc_exp by Weekday",
+            title = "$inc_exp by Weekday<br><sup>Total $inc_exp per $(readable_interval_names(interval)) per Weekday.</sup>",
             plot_bgcolor = current_theme["background"],
             paper_bgcolor = current_theme["background"],
             yaxis_gridcolor = current_theme["grid_color"],
@@ -697,7 +706,9 @@ callback!(
             )
         ],
         PlotlyJS.Layout(
-            title = "Histogram",
+            title = "Histogram<br><sup>Number of transactions per price range.</sup>",
+            yaxis_title = "Frequency",
+            xaxis_title = "CHF",
             plot_bgcolor = current_theme["background"],
             paper_bgcolor = current_theme["background"],
             yaxis_gridcolor = current_theme["grid_color"],
@@ -736,7 +747,8 @@ callback!(
             )
         ],
         PlotlyJS.Layout(
-            title = "Transactions over Time",
+            title = "Transactions over Time<br><sup>Individual transactions of selected category.</sup>",
+            yaxis_title = "CHF",
             hovermode = "closest",
             plot_bgcolor = current_theme["background"],
             paper_bgcolor = current_theme["background"],

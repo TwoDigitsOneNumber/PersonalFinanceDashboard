@@ -137,11 +137,15 @@ Convert interval names (from dataframe column names )to a more easily readable w
 """
 function readable_interval_names(interval)
 
-    if (interval == "Weekday")
+    if interval == "Weekday"
         interval = "Day"
-    elseif (interval == "CalendarMonth" || interval == "YearMonth")
+    elseif interval == "CalendarMonth"
+        interval = "Calendar Month"
+    elseif interval == "YearMonth"
         interval = "Month"
-    elseif (interval == "CalendarWeek" || interval == "YearWeek")
+    elseif interval == "CalendarWeek"
+        interval = "Calendar Week"
+    elseif interval == "YearWeek"
         interval = "Week"
     end
     return interval

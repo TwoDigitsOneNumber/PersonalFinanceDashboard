@@ -25,8 +25,7 @@ cc["darkblue"] = "#"*Colors.hex(Colors.RGBA(31/255, 119/255, 180/255, 1), :RRGGB
 cc["darkdarkblue"] = "#"*Colors.hex(Colors.RGBA(5/255, 35/255, 60/255, 1), :RRGGBB)
 
 cc["violet"] = "#"*Colors.hex(Colors.RGBA(99/255, 110/255, 250/255, 1), :RRGGBB)
-cc["red"] = "#"*Colors.hex(Colors.RGBA(239/255, 85/255, 59/255, 1), :RRGGBB)
-cc["orange"]  = "#"*Colors.hex(Colors.RGBA(255/255, 161/255, 90/255, 1), :RRGGBB)
+cc["orange"] = "#"*Colors.hex(Colors.RGBA(239/255, 85/255, 59/255, 1), :RRGGBB)
 cc["yellow"] = "#"*Colors.hex(Colors.RGBA(234/255, 234/255, 0/255, 1), :RRGGBB)
 
 cc["brown"] = "#"*Colors.hex(Colors.RGBA(128/255, 64/255, 64/255, 1), :RRGGBB)
@@ -80,7 +79,7 @@ theme_dark = Dict(
     "titlefont_size" => 18,
     "font_size" => 12,
     "Income" => cc["green"],
-    "Expense" => cc["red"],
+    "Expense" => cc["orange"],
     "cc" => cc
     # "cycler" => cc["cycler"]
 )

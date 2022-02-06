@@ -21,7 +21,7 @@ include("components/callbacks.jl")
 # handle ARGS from app.jl
 file_name = ARGS[1]
 debug = ARGS[2]
-port = parse(Int, ARGS[3])
+port = typeof(ARGS[3]) == Int ? ARGS[3] : parse(Int, ARGS[3])
 
 
 # -----------------------------------------------------------------------------
